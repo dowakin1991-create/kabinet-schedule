@@ -22,44 +22,56 @@
 
         body {
             font-family: 'Montserrat', sans-serif; background-color: var(--bg-body);
-            color: var(--text-main); margin: 0; padding: 20px; transition: all 0.3s ease;
+            color: var(--text-main); margin: 0; padding: 10px; transition: all 0.3s ease;
         }
 
         .container { max-width: 1300px; margin: 0 auto; }
 
+        /* Адаптивний хедер */
         header {
-            display: flex; justify-content: space-between; align-items: center;
+            display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 15px;
             background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px);
-            padding: 15px 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 15px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             margin-bottom: 20px; border: 1px solid rgba(255, 255, 255, 0.3);
         }
         
         [data-theme="dark"] header { background: rgba(30, 30, 30, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); }
 
-        .logo { height: 50px; object-fit: contain; }
+        .logo-block { display: flex; align-items: center; gap: 10px; }
+        .logo { height: 40px; object-fit: contain; }
 
         .admin-badge {
             background: #e74c3c; color: white; padding: 4px 10px; border-radius: 8px;
-            font-size: 0.7rem; font-weight: 900; letter-spacing: 1px; display: block; margin-bottom: 5px;
+            font-size: 0.7rem; font-weight: 900; letter-spacing: 1px; display: inline-block;
         }
 
+        .month-selector { display: flex; align-items: center; justify-content: center; flex-grow: 1; }
+
+        /* Адаптивна панель кнопок */
         .admin-controls {
-            display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;
+            display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;
             background: var(--bg-card); padding: 15px; border-radius: 12px;
         }
+        @media(min-width: 768px) { .admin-controls { flex-direction: row; align-items: center; } }
 
         input {
-            flex-grow: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--border);
-            background: var(--bg-body); color: var(--text-main); font-family: inherit;
+            flex-grow: 1; padding: 12px; border-radius: 8px; border: 1px solid var(--border);
+            background: var(--bg-body); color: var(--text-main); font-family: inherit; font-size: 1rem;
         }
 
-        button { padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; border: none; }
-        .add-btn { background: var(--primary); color: white; }
-        .excel-btn { background: #27ae60; color: white; }
-        .del-btn { background: none; color: #e74c3c; font-size: 0.8rem; cursor: pointer; margin-left: 5px; border: 1px solid #e74c3c; padding: 2px 5px; border-radius: 4px; }
+        button { padding: 12px 15px; border-radius: 8px; font-weight: 700; cursor: pointer; border: none; font-size: 0.95rem; }
+        .add-btn { background: #3498db; color: white; }
+        .save-btn { background: var(--primary); color: white; }
+        .viber-btn { background: #7360f2; color: white; } /* Фірмовий колір Viber */
+        .del-btn { background: none; color: #e74c3c; font-size: 1rem; cursor: pointer; margin-left: 5px; padding: 0 5px; }
 
-        .table-wrapper { overflow-x: auto; background: var(--bg-card); border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 1000px; }
+        /* Оптимізація таблиці від кропання */
+        .table-wrapper {
+            width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch;
+            background: var(--bg-card); border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 900px; }
         th, td { padding: 12px 8px; text-align: center; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); }
         th { background: #34495e; color: white; position: sticky; top: 0; z-index: 4; }
 
@@ -67,7 +79,7 @@
         th:first-child, td:first-child {
             position: sticky; left: 0; z-index: 5; background: inherit;
             text-align: left; padding-left: 15px; font-weight: 700; border-left: 1px solid var(--border);
-            min-width: 180px;
+            min-width: 140px; box-shadow: 2px 0 5px rgba(0,0,0,0.05);
         }
         th:first-child { background: #34495e; z-index: 6; }
 
@@ -81,29 +93,32 @@
         tr:nth-child(5n+4) td { background-color: var(--row-4); }
         tr:nth-child(5n+5) td { background-color: var(--row-5); }
 
-        .theme-toggle { cursor: pointer; padding: 10px; border-radius: 50%; border: 2px solid var(--primary); background: none; color: var(--primary); display: flex; align-items: center; justify-content: center; }
+        .theme-toggle { cursor: pointer; padding: 10px; border-radius: 50%; border: 2px solid var(--primary); background: none; color: var(--primary); }
     </style>
 </head>
 <body data-theme="light">
 
 <div class="container">
     <header>
-        <div>
-            <span class="admin-badge">ШЕФ</span>
-            <img src="IMG_9802.png" alt="Logo" class="logo">
+        <div class="logo-block">
+            <div>
+                <span class="admin-badge">ШЕФ</span><br>
+                <img src="IMG_9802.png" alt="Logo" class="logo">
+            </div>
         </div>
-        <div style="text-align:center; display: flex; align-items: center;">
-            <button onclick="changeMonth(-1)" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:var(--text-main)">◀</button>
-            <span id="month-label" style="font-weight:900; font-size: 1.2rem; margin: 0 15px; min-width: 180px;">Завантаження...</span>
-            <button onclick="changeMonth(1)" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:var(--text-main)">▶</button>
+        <div class="month-selector">
+            <button onclick="changeMonth(-1)" style="background:none; border:none; font-size:1.8rem; cursor:pointer; color:var(--text-main); padding: 0 15px;">◀</button>
+            <span id="month-label" style="font-weight:900; font-size: 1.2rem; text-align: center; min-width: 160px;">Завантаження...</span>
+            <button onclick="changeMonth(1)" style="background:none; border:none; font-size:1.8rem; cursor:pointer; color:var(--text-main); padding: 0 15px;">▶</button>
         </div>
         <button class="theme-toggle" onclick="toggleTheme()">🌓</button>
     </header>
 
     <div class="admin-controls">
-        <input type="text" id="newEmpName" placeholder="Прізвище та ім'я працівника">
-        <button class="add-btn" onclick="addEmployee()">Додати</button>
-        <button class="excel-btn" onclick="exportToExcel()">Зберегти для Viber (Excel)</button>
+        <input type="text" id="newEmpName" placeholder="Ім'я працівника">
+        <button class="add-btn" onclick="addEmployee()">+ Додати</button>
+        <button class="save-btn" onclick="saveChanges()">💾 Зберегти зміни</button>
+        <button class="viber-btn" onclick="sendToViber()">💬 Надіслати у Viber</button>
     </div>
 
     <div class="table-wrapper">
@@ -116,7 +131,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-    import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDgCPf1UqXE4DNhfdGJ6QklEKc055lu4k4",
@@ -133,29 +148,24 @@
     let currentDate = new Date(2026, 3, 1);
     const monthNames = ["Січень", "Лютий", "Березень", "Квітень", "Травень", "Червень", "Липень", "Серпень", "Вересень", "Жовтень", "Листопад", "Грудень"];
     let employees = [];
-    let unsubscribe = null;
 
     function getDocId() {
         return `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
     }
 
-    function loadData() {
-        if(unsubscribe) unsubscribe();
-        
+    // В адмінці прибираємо onSnapshot, щоб зміни завантажувались раз і ми могли їх редагувати до збереження
+    async function loadData() {
         document.getElementById('month-label').innerText = `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
         
-        unsubscribe = onSnapshot(doc(db, "schedules", getDocId()), (docSnap) => {
-            if (docSnap.exists()) {
-                employees = docSnap.data().employees || [];
-            } else {
-                employees = [];
-            }
-            render();
-        });
-    }
-
-    async function saveData() {
-        await setDoc(doc(db, "schedules", getDocId()), { employees });
+        const docRef = doc(db, "schedules", getDocId());
+        const docSnap = await getDoc(docRef);
+        
+        if (docSnap.exists()) {
+            employees = docSnap.data().employees || [];
+        } else {
+            employees = [];
+        }
+        render();
     }
 
     function render() {
@@ -190,20 +200,20 @@
         `).join('');
     }
 
-    // Глобальні функції
+    // Глобальні функції (Без миттєвого збереження)
     window.addEmployee = function() {
         const name = document.getElementById('newEmpName').value;
         if(name) {
             employees.push({ id: Date.now(), name: name, shifts: [], unavail: [] });
             document.getElementById('newEmpName').value = '';
-            saveData();
+            render();
         }
     }
 
     window.deleteEmployee = function(id) {
         if(confirm("Видалити цього працівника з графіка?")) {
             employees = employees.filter(e => e.id !== id);
-            saveData();
+            render();
         }
     }
 
@@ -212,7 +222,7 @@
         if(emp) {
             if(emp.shifts.includes(day)) emp.shifts = emp.shifts.filter(d => d !== day);
             else emp.shifts.push(day);
-            saveData();
+            render(); // Тільки малюємо, НЕ відправляємо в базу
         }
     }
 
@@ -221,33 +231,35 @@
         loadData();
     }
 
-    window.exportToExcel = function() {
+    // КНОПКА "ЗБЕРЕГТИ ЗМІНИ"
+    window.saveChanges = async function() {
+        try {
+            await setDoc(doc(db, "schedules", getDocId()), { employees });
+            alert("✅ Графік успішно збережено в базу!");
+        } catch (e) {
+            alert("Помилка збереження. Перевірте інтернет.");
+        }
+    }
+
+    // ВІДПРАВКА У VIBER (Формує текст і відкриває додаток)
+    window.sendToViber = function() {
         const year = currentDate.getFullYear();
         const month = currentDate.getMonth();
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
-        
-        let csvContent = "Працівник;";
-        for(let i=1; i<=daysInMonth; i++) csvContent += i + ";";
-        csvContent += "\n";
+        let text = `🗓 Графік KABINET на ${monthNames[month]} ${year}\n\n`;
 
         employees.forEach(emp => {
-            csvContent += emp.name + ";";
-            for(let i=1; i<=daysInMonth; i++) {
-                let status = "";
-                if(emp.shifts.includes(i)) status = "X";
-                if(emp.unavail.includes(i)) status += "(не може)";
-                csvContent += status + ";";
-            }
-            csvContent += "\n";
+            let shifts = [...emp.shifts].sort((a,b) => a-b).join(', ');
+            if(shifts) text += `👨‍🍳 ${emp.name}:\n Робочі дні: ${shifts}\n`;
+            
+            let unavail = [...emp.unavail].sort((a,b) => a-b).join(', ');
+            if(unavail) text += ` ❌ Не може: ${unavail}\n`;
+            
+            text += `\n`; // Відступ між працівниками
         });
 
-        const encodedUri = encodeURI("data:text/csv;charset=utf-8,\uFEFF" + csvContent);
-        const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", `Графік_Kabinet_${monthNames[month]}_${year}.csv`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        // Спеціальне посилання, яке відкриває Viber на телефоні
+        const encodedText = encodeURIComponent(text);
+        window.location.href = `viber://forward?text=${encodedText}`;
     }
 
     window.toggleTheme = function() {

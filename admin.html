@@ -4,28 +4,131 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KABINET - Адмін Панель</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;900&display=swap" rel="stylesheet">
+    
     <style>
-        /* Стилі ідентичні index.html для цілісності */
-        /* Додамо специфічні для адмінки елементи */
         :root {
-            --bg-body: #f4f7f6; --bg-card: #ffffff; --text-main: #2c3e50; --primary: #1F6B6B; --border: #dee2e6;
+            --bg-body: #f4f7f6;
+            --bg-card: #ffffff;
+            --text-main: #2c3e50;
+            --primary: #1F6B6B;
+            --weekend: #e0e0e0;
+            --border: #dee2e6;
+            --row-1: #fdf2f2; --row-2: #f0f7f4; --row-3: #fef6e3; --row-4: #f3f0f7; --row-5: #eef5fb;
         }
+
         [data-theme="dark"] {
-            --bg-body: #121212; --bg-card: #1e1e1e; --text-main: #e0e0e0; --primary: #2ebfbf; --border: #444444;
+            --bg-body: #121212;
+            --bg-card: #1e1e1e;
+            --text-main: #e0e0e0;
+            --primary: #2ebfbf;
+            --weekend: #333333;
+            --border: #444444;
+            --row-1: #3a2a2a; --row-2: #2a3a32; --row-3: #3a352a; --row-4: #2e2a3a; --row-5: #2a333a;
         }
-        body { font-family: 'Inter', sans-serif; background: var(--bg-body); color: var(--text-main); padding: 20px; }
-        header { display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); padding: 15px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .admin-badge { background: #e74c3c; color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; }
-        .controls { background: var(--bg-card); padding: 20px; border-radius: 15px; margin-bottom: 20px; display: flex; gap: 10px; }
-        input, button { padding: 10px; border-radius: 8px; border: 1px solid var(--border); }
-        button { background: var(--primary); color: white; cursor: pointer; border: none; font-weight: bold; }
-        table { width: 100%; border-collapse: collapse; background: var(--bg-card); }
-        th, td { border: 1px solid var(--border); padding: 10px 5px; text-align: center; }
-        th { background: #34495e; color: white; }
-        .weekend { background-color: #f0f0f0; }
-        [data-theme="dark"] .weekend { background-color: #2a2a2a; }
-        .shift { color: #27ae60; font-weight: bold; }
-        .unavailable { color: #e74c3c; font-weight: bold; }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            margin: 0; padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; }
+
+        /* Скляний хедер */
+        header {
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 15px 25px;
+            border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        [data-theme="dark"] header {
+            background: rgba(30, 30, 30, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo { height: 50px; object-fit: contain; }
+
+        .admin-badge {
+            background: #e74c3c;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.7rem;
+            font-weight: 900;
+            letter-spacing: 1px;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        /* Панель керування */
+        .admin-controls {
+            display: flex; gap: 10px; margin-bottom: 20px;
+            background: var(--bg-card); padding: 15px; border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        input {
+            flex-grow: 1; padding: 10px; border-radius: 8px;
+            border: 1px solid var(--border); background: var(--bg-body);
+            color: var(--text-main); font-family: inherit;
+        }
+
+        button.add-btn {
+            background: var(--primary); color: white; border: none;
+            padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer;
+        }
+
+        /* Таблиця */
+        .table-wrapper {
+            overflow-x: auto;
+            background: var(--bg-card);
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        table {
+            width: 100%; border-collapse: separate; border-spacing: 0; min-width: 800px;
+        }
+
+        th, td { 
+            padding: 12px 8px; text-align: center; 
+            border-bottom: 1px solid var(--border); border-right: 1px solid var(--border);
+        }
+        
+        th { border-top: 1px solid var(--border); background: #34495e; color: white; font-weight: 600; }
+
+        /* ПРИМАГНІЧЕНА КОЛОНКА */
+        th:first-child, td:first-child {
+            position: sticky; left: 0; z-index: 2;
+            background: inherit; text-align: left; padding-left: 15px;
+            font-weight: 700; border-left: 1px solid var(--border);
+        }
+        th:first-child { z-index: 3; background: #34495e; }
+
+        .weekend { background-color: var(--weekend) !important; }
+        .shift { color: var(--primary); font-weight: 900; font-size: 1.2rem; cursor: pointer; }
+        .unavail-marker { color: #ff4d4d; font-size: 0.8rem; vertical-align: super; margin-left: 2px; }
+
+        /* Рядки */
+        tr:nth-child(5n+1) td { background-color: var(--row-1); }
+        tr:nth-child(5n+2) td { background-color: var(--row-2); }
+        tr:nth-child(5n+3) td { background-color: var(--row-3); }
+        tr:nth-child(5n+4) td { background-color: var(--row-4); }
+        tr:nth-child(5n+5) td { background-color: var(--row-5); }
+
+        .theme-toggle {
+            cursor: pointer; padding: 10px; border-radius: 50%;
+            border: 2px solid var(--primary); background: none; color: var(--primary);
+            display: flex; align-items: center; justify-content: center;
+        }
     </style>
 </head>
 <body data-theme="light">
@@ -34,18 +137,22 @@
     <header>
         <div>
             <span class="admin-badge">АДМІНІСТРАТОР</span>
-            <h2 style="margin: 5px 0 0 0;">Керування графіком</h2>
+            <img src="IMG_9802.png" alt="Logo" class="logo">
         </div>
-        <button onclick="toggleTheme()">🌓</button>
+        <div style="text-align:center; display: flex; align-items: center;">
+            <button onclick="changeMonth(-1)" style="background:none; border:none; cursor:pointer; color:var(--text-main);">◀</button>
+            <span id="month-label" style="font-weight:700; margin: 0 15px;">Квітень 2026</span>
+            <button onclick="changeMonth(1)" style="background:none; border:none; cursor:pointer; color:var(--text-main);">▶</button>
+        </div>
+        <button class="theme-toggle" onclick="toggleTheme()">🌓</button>
     </header>
 
-    <div class="controls">
-        <input type="text" id="empName" placeholder="Ім'я працівника">
-        <button onclick="addEmployee()">Додати до штату</button>
-        <button style="background: #27ae60; margin-left: auto;">Зберегти в Хмару</button>
+    <div class="admin-controls">
+        <input type="text" id="newEmpName" placeholder="Прізвище та ім'я працівника">
+        <button class="add-btn" onclick="addEmployee()">Додати</button>
     </div>
 
-    <div style="overflow-x: auto;">
+    <div class="table-wrapper">
         <table id="admin-table">
             <thead><tr id="h-row"></tr></thead>
             <tbody id="b-row"></tbody>
@@ -68,10 +175,10 @@
     ];
 
     function addEmployee() {
-        const name = document.getElementById('empName').value;
+        const name = document.getElementById('newEmpName').value;
         if(name) {
             employees.push({ name: name, shifts: [], unavail: [] });
-            document.getElementById('empName').value = '';
+            document.getElementById('newEmpName').value = '';
             render();
         }
     }
@@ -80,16 +187,21 @@
         const head = document.getElementById('h-row');
         const body = document.getElementById('b-row');
         head.innerHTML = '<th>Працівник</th>';
-        for(let i=1; i<=30; i++) head.innerHTML += `<th>${i}</th>`;
+        for(let i=1; i<=30; i++) {
+            const isWeekend = [4,5,11,12,18,19,25,26].includes(i);
+            head.innerHTML += `<th class="${isWeekend?'weekend':''}">${i}</th>`;
+        }
 
         body.innerHTML = employees.map(emp => `
             <tr>
-                <td style="text-align:left; padding-left:10px; background:#f9f9f9;"><b>${emp.name}</b></td>
+                <td>${emp.name}</td>
                 ${Array.from({length:30}, (_, i) => {
                     const day = i + 1;
+                    const isWeekend = [4,5,11,12,18,19,25,26].includes(day);
                     let content = emp.shifts.includes(day) ? '<span class="shift">X</span>' : '';
-                    if(emp.unavail.includes(day)) content += '<span class="unavailable">!</span>';
-                    return `<td onclick="toggleShift('${emp.name}', ${day})">${content}</td>`;
+                    // Марічка бачить позначки працівників, щоб знати, куди НЕ ставити зміну
+                    if(emp.unavail.includes(day)) content += '<span class="unavail-marker">•</span>';
+                    return `<td class="${isWeekend?'weekend':''}" onclick="toggleShift('${emp.name}', ${day})">${content}</td>`;
                 }).join('')}
             </tr>
         `).join('');
@@ -97,10 +209,19 @@
 
     function toggleShift(name, day) {
         const emp = employees.find(e => e.name === name);
-        if(emp.shifts.includes(day)) emp.shifts = emp.shifts.filter(d => d !== day);
-        else emp.shifts.push(day);
+        if(emp.shifts.includes(day)) {
+            emp.shifts = emp.shifts.filter(d => d !== day);
+        } else {
+            emp.shifts.push(day);
+        }
         render();
     }
+
+    function changeMonth(dir) {
+        // Логіка перемикання місяців буде додана при підключенні Firebase
+        alert("Зміна місяця буде активна після підключення бази даних");
+    }
+
     render();
 </script>
 </body>

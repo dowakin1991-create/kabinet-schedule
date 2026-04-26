@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KABINET - Адмін Панель</title>
+    <style>
+        /* Стилі ідентичні index.html для цілісності */
+        /* Додамо специфічні для адмінки елементи */
+        :root {
+            --bg-body: #f4f7f6; --bg-card: #ffffff; --text-main: #2c3e50; --primary: #1F6B6B; --border: #dee2e6;
+        }
+        [data-theme="dark"] {
+            --bg-body: #121212; --bg-card: #1e1e1e; --text-main: #e0e0e0; --primary: #2ebfbf; --border: #444444;
+        }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-body); color: var(--text-main); padding: 20px; }
+        header { display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); padding: 15px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .admin-badge { background: #e74c3c; color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; }
+        .controls { background: var(--bg-card); padding: 20px; border-radius: 15px; margin-bottom: 20px; display: flex; gap: 10px; }
+        input, button { padding: 10px; border-radius: 8px; border: 1px solid var(--border); }
+        button { background: var(--primary); color: white; cursor: pointer; border: none; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; background: var(--bg-card); }
+        th, td { border: 1px solid var(--border); padding: 10px 5px; text-align: center; }
+        th { background: #34495e; color: white; }
+        .weekend { background-color: #f0f0f0; }
+        [data-theme="dark"] .weekend { background-color: #2a2a2a; }
+        .shift { color: #27ae60; font-weight: bold; }
+        .unavailable { color: #e74c3c; font-weight: bold; }
+    </style>
+</head>
+<body data-theme="light">
+
+<div class="container">
+    <header>
+        <div>
+            <span class="admin-badge">АДМІНІСТРАТОР</span>
+            <h2 style="margin: 5px 0 0 0;">Керування графіком</h2>
+        </div>
+        <button onclick="toggleTheme()">🌓</button>
+    </header>
+
+    <div class="controls">
+        <input type="text" id="empName" placeholder="Ім'я працівника">
+        <button onclick="addEmployee()">Додати до штату</button>
+        <button style="background: #27ae60; margin-left: auto;">Зберегти в Хмару</button>
+    </div>
+
+    <div style="overflow-x: auto;">
+        <table id="admin-table">
+            <thead><tr id="h-row"></tr></thead>
+            <tbody id="b-row"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    function toggleTheme() {
+        const body = document.body;
+        const newTheme = body.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+        body.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+    }
+    if(localStorage.getItem('theme')) document.body.setAttribute('data-theme', localStorage.getItem('theme'));
+
+    let employees = [
+        { name: "Марічка", shifts: [1,2,5], unavail: [] },
+        { name: "Віталік", shifts: [3,4], unavail: [15] }
+    ];
+
+    function addEmployee() {
+        const name = document.getElementById('empName').value;
+        if(name) {
+            employees.push({ name: name, shifts: [], unavail: [] });
+            document.getElementById('empName').value = '';
+            render();
+        }
+    }
+
+    function render() {
+        const head = document.getElementById('h-row');
+        const body = document.getElementById('b-row');
+        head.innerHTML = '<th>Працівник</th>';
+        for(let i=1; i<=30; i++) head.innerHTML += `<th>${i}</th>`;
+
+        body.innerHTML = employees.map(emp => `
+            <tr>
+                <td style="text-align:left; padding-left:10px; background:#f9f9f9;"><b>${emp.name}</b></td>
+                ${Array.from({length:30}, (_, i) => {
+                    const day = i + 1;
+                    let content = emp.shifts.includes(day) ? '<span class="shift">X</span>' : '';
+                    if(emp.unavail.includes(day)) content += '<span class="unavailable">!</span>';
+                    return `<td onclick="toggleShift('${emp.name}', ${day})">${content}</td>`;
+                }).join('')}
+            </tr>
+        `).join('');
+    }
+
+    function toggleShift(name, day) {
+        const emp = employees.find(e => e.name === name);
+        if(emp.shifts.includes(day)) emp.shifts = emp.shifts.filter(d => d !== day);
+        else emp.shifts.push(day);
+        render();
+    }
+    render();
+</script>
+</body>
+</html>

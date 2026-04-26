@@ -4,78 +4,44 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KABINET - Графік</title>
-    
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;900&display=swap" rel="stylesheet">
-    
     <style>
         :root {
             --bg-body: #f4f7f6; --bg-card: #ffffff; --text-main: #2c3e50;
             --primary: #1F6B6B; --weekend: #e0e0e0; --border: #dee2e6;
             --row-1: #fdf2f2; --row-2: #f0f7f4; --row-3: #fef6e3; --row-4: #f3f0f7; --row-5: #eef5fb;
         }
-
         [data-theme="dark"] {
             --bg-body: #121212; --bg-card: #1e1e1e; --text-main: #e0e0e0;
             --primary: #2ebfbf; --weekend: #333333; --border: #444444;
             --row-1: #3a2a2a; --row-2: #2a3a32; --row-3: #3a352a; --row-4: #2e2a3a; --row-5: #2a333a;
         }
-
-        body {
-            font-family: 'Montserrat', sans-serif; background-color: var(--bg-body);
-            color: var(--text-main); margin: 0; padding: 10px; transition: all 0.3s ease;
-        }
-
+        body { font-family: 'Montserrat', sans-serif; background-color: var(--bg-body); color: var(--text-main); margin: 0; padding: 10px; transition: all 0.3s ease; }
         .container { max-width: 1200px; margin: 0 auto; }
-
-        /* Адаптивний хедер */
-        header {
-            display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 15px;
-            background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px);
-            padding: 15px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            margin-bottom: 20px; border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-        
+        header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 15px; background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); padding: 15px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px; border: 1px solid rgba(255, 255, 255, 0.3); }
         [data-theme="dark"] header { background: rgba(30, 30, 30, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); }
-
         .logo { height: 40px; object-fit: contain; }
-
         .month-selector { display: flex; align-items: center; justify-content: center; flex-grow: 1; }
         button.nav-btn { background: none; border: none; font-size: 1.8rem; cursor: pointer; padding: 0 15px; color: var(--text-main); }
-
         .theme-toggle { cursor: pointer; padding: 10px; border-radius: 50%; border: 2px solid var(--primary); background: none; color: var(--primary); }
-
-        /* Оптимізація таблиці від кропання */
-        .table-wrapper {
-            width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch;
-            background: var(--bg-card); border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-        }
-        
+        .table-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; background: var(--bg-card); border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 800px; }
         th, td { padding: 12px 8px; text-align: center; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); }
         th { border-top: 1px solid var(--border); background: var(--primary); color: white; font-weight: 500; font-size: 0.9rem; }
-        
-        /* МАГНІТНА КОЛОНКА */
-        th:first-child, td:first-child {
-            position: sticky; left: 0; z-index: 2; box-shadow: 2px 0 5px rgba(0,0,0,0.05);
-            text-align: left; padding-left: 15px; border-left: 1px solid var(--border); min-width: 100px;
-        }
+        th:first-child, td:first-child { position: sticky; left: 0; z-index: 2; box-shadow: 2px 0 5px rgba(0,0,0,0.05); text-align: left; padding-left: 15px; border-left: 1px solid var(--border); min-width: 100px; }
         th:first-child { z-index: 3; background: var(--primary); }
-
         .weekend { background-color: var(--weekend) !important; }
-        .unavailable { color: #ff4d4d; font-weight: 900; font-size: 1.5rem; line-height: 0; cursor: pointer; }
+        .unavailable { color: #ff4d4d; font-weight: 900; font-size: 1.8rem; line-height: 0; cursor: pointer; vertical-align: bottom; }
         .shift { font-weight: 700; color: var(--primary); cursor: pointer; }
-
         tr:nth-child(5n+1) td { background-color: var(--row-1); }
         tr:nth-child(5n+2) td { background-color: var(--row-2); }
         tr:nth-child(5n+3) td { background-color: var(--row-3); }
         tr:nth-child(5n+4) td { background-color: var(--row-4); }
         tr:nth-child(5n+5) td { background-color: var(--row-5); }
-        
         .hint-text { font-size: 0.8rem; margin-top: 15px; color: #888; font-weight: 500; text-align: center;}
     </style>
 </head>
 <body data-theme="light">
-
 <div class="container">
     <header>
         <img src="IMG_9802.png" alt="Kabinet Logo" class="logo">
@@ -112,7 +78,8 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    let currentDate = new Date(2026, 3, 1);
+    let currentDate = new Date();
+    currentDate.setDate(1); 
     let employees = [];
     const monthNames = ["Січень", "Лютий", "Березень", "Квітень", "Травень", "Червень", "Липень", "Серпень", "Вересень", "Жовтень", "Листопад", "Грудень"];
     let unsubscribe = null;
@@ -129,15 +96,25 @@
         unsubscribe = onSnapshot(doc(db, "schedules", getDocId()), (docSnap) => {
             if (docSnap.exists()) {
                 employees = docSnap.data().employees || [];
+                render();
             } else {
-                employees = [];
+                if (employees.length > 0) {
+                    employees = employees.map(emp => ({ ...emp, shifts: [], unavail: [] }));
+                    saveData();
+                } else {
+                    employees = [];
+                    render();
+                }
             }
-            render();
         });
     }
 
     async function saveData() {
-        await setDoc(doc(db, "schedules", getDocId()), { employees });
+        try {
+            await setDoc(doc(db, "schedules", getDocId()), { employees });
+        } catch(e) {
+            console.error("Помилка збереження", e);
+        }
     }
 
     function render() {
@@ -174,7 +151,8 @@
         if(emp) {
             if(emp.unavail.includes(day)) emp.unavail = emp.unavail.filter(d => d !== day);
             else emp.unavail.push(day);
-            saveData();
+            render(); // Миттєве візуальне оновлення
+            saveData(); // Синхронізація
         }
     }
 

@@ -8,49 +8,67 @@
     <style>
         :root {
             --bg-body: #f4f7f6; --bg-card: #ffffff; --text-main: #2c3e50;
-            --primary: #1F6B6B; --weekend: #e0e0e0; --border: #dee2e6;
+            --primary: #1F6B6B; --weekend: #e9ecef; --border: #c4cdd5;
             --row-1: #fdf2f2; --row-2: #f0f7f4; --row-3: #fef6e3; --row-4: #f3f0f7; --row-5: #eef5fb;
         }
-        [data-theme="dark"] {
-            --bg-body: #121212; --bg-card: #1e1e1e; --text-main: #e0e0e0;
-            --primary: #2ebfbf; --weekend: #333333; --border: #444444;
-            --row-1: #3a2a2a; --row-2: #2a3a32; --row-3: #3a352a; --row-4: #2e2a3a; --row-5: #2a333a;
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-body: #121212; --bg-card: #1e1e1e; --text-main: #e0e0e0;
+                --primary: #2ebfbf; --weekend: #2a2a2a; --border: #444444;
+                --row-1: #3a2a2a; --row-2: #2a3a32; --row-3: #3a352a; --row-4: #2e2a3a; --row-5: #2a333a;
+            }
         }
-        body { font-family: 'Montserrat', sans-serif; background-color: var(--bg-body); color: var(--text-main); margin: 0; padding: 10px; transition: all 0.3s ease; }
+
+        body { font-family: 'Montserrat', sans-serif; background-color: var(--bg-body); color: var(--text-main); margin: 0; padding: 10px; transition: background-color 0.3s ease; }
         .container { max-width: 1200px; margin: 0 auto; }
-        header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 15px; background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); padding: 15px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px; border: 1px solid rgba(255, 255, 255, 0.3); }
-        [data-theme="dark"] header { background: rgba(30, 30, 30, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .logo { height: 40px; object-fit: contain; }
+        
+        header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 15px; background: var(--bg-card); padding: 12px 15px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 15px; border: 1px solid var(--border); }
+        .logo { height: 35px; object-fit: contain; }
         .month-selector { display: flex; align-items: center; justify-content: center; flex-grow: 1; }
-        button.nav-btn { background: none; border: none; font-size: 1.8rem; cursor: pointer; padding: 0 15px; color: var(--text-main); }
-        .theme-toggle { cursor: pointer; padding: 10px; border-radius: 50%; border: 2px solid var(--primary); background: none; color: var(--primary); }
-        .table-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; background: var(--bg-card); border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 800px; }
-        th, td { padding: 12px 8px; text-align: center; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); }
+        .nav-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; padding: 0 15px; color: var(--text-main); }
+        
+        .table-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; background: var(--bg-card); border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 800px; background: var(--bg-card); }
+        
+        /* Збільшено висоту для двох рядків тексту */
+        th, td { 
+            padding: 4px; height: 44px; text-align: center; 
+            border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); 
+            box-sizing: border-box;
+        }
         th { border-top: 1px solid var(--border); background: var(--primary); color: white; font-weight: 500; font-size: 0.9rem; }
-        th:first-child, td:first-child { position: sticky; left: 0; z-index: 2; box-shadow: 2px 0 5px rgba(0,0,0,0.05); text-align: left; padding-left: 15px; border-left: 1px solid var(--border); min-width: 100px; }
+        
+        th:first-child, td:first-child { 
+            position: sticky; left: 0; z-index: 2; box-shadow: 2px 0 5px rgba(0,0,0,0.05); 
+            text-align: left; padding-left: 10px; border-left: 1px solid var(--border); 
+            min-width: 100px; max-width: 140px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
+        }
         th:first-child { z-index: 3; background: var(--primary); }
+        
         .weekend { background-color: var(--weekend) !important; }
-        .unavailable { color: #ff4d4d; font-weight: 900; font-size: 1.8rem; line-height: 0; cursor: pointer; vertical-align: bottom; }
+        .unavailable { color: #ff4d4d; font-weight: 900; font-size: 1.5rem; line-height: 0; cursor: pointer; vertical-align: bottom; }
         .shift { font-weight: 700; color: var(--primary); cursor: pointer; }
+        
         tr:nth-child(5n+1) td { background-color: var(--row-1); }
         tr:nth-child(5n+2) td { background-color: var(--row-2); }
         tr:nth-child(5n+3) td { background-color: var(--row-3); }
         tr:nth-child(5n+4) td { background-color: var(--row-4); }
         tr:nth-child(5n+5) td { background-color: var(--row-5); }
+        
         .hint-text { font-size: 0.8rem; margin-top: 15px; color: #888; font-weight: 500; text-align: center;}
     </style>
 </head>
-<body data-theme="light">
+<body>
 <div class="container">
     <header>
         <img src="IMG_9802.png" alt="Kabinet Logo" class="logo">
         <div class="month-selector">
             <button class="nav-btn" onclick="changeMonth(-1)">◀</button>
-            <span id="month-label" style="font-weight:900; font-size: 1.2rem; text-align: center; min-width: 160px;">Завантаження...</span>
+            <span id="month-label" style="font-weight:900; font-size: 1.1rem; text-align: center; min-width: 140px;">...</span>
             <button class="nav-btn" onclick="changeMonth(1)">▶</button>
         </div>
-        <button class="theme-toggle" onclick="toggleTheme()">🌓</button>
     </header>
 
     <div class="table-wrapper">
@@ -82,6 +100,7 @@
     currentDate.setDate(1); 
     let employees = [];
     const monthNames = ["Січень", "Лютий", "Березень", "Квітень", "Травень", "Червень", "Липень", "Серпень", "Вересень", "Жовтень", "Листопад", "Грудень"];
+    const dayNames = ["Нд", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"]; // Дні тижня
     let unsubscribe = null;
 
     function getDocId() {
@@ -110,11 +129,8 @@
     }
 
     async function saveData() {
-        try {
-            await setDoc(doc(db, "schedules", getDocId()), { employees });
-        } catch(e) {
-            console.error("Помилка збереження", e);
-        }
+        try { await setDoc(doc(db, "schedules", getDocId()), { employees }); } 
+        catch(e) { console.error(e); }
     }
 
     function render() {
@@ -127,8 +143,13 @@
         
         let headHtml = '<th>Ім\'я</th>';
         for(let i=1; i<=daysInMonth; i++) {
-            const isWeekend = (new Date(year, month, i).getDay() % 6 === 0);
-            headHtml += `<th class="${isWeekend?'weekend':''}">${i}</th>`;
+            const dayIndex = new Date(year, month, i).getDay();
+            const isWeekend = (dayIndex === 0 || dayIndex === 6);
+            
+            // Додано день тижня під числом
+            headHtml += `<th class="${isWeekend?'weekend':''}" style="line-height: 1.1;">
+                ${i}<br><span style="font-size: 0.65rem; font-weight: normal; opacity: 0.85;">${dayNames[dayIndex]}</span>
+            </th>`;
         }
         head.innerHTML = headHtml;
 
@@ -151,8 +172,8 @@
         if(emp) {
             if(emp.unavail.includes(day)) emp.unavail = emp.unavail.filter(d => d !== day);
             else emp.unavail.push(day);
-            render(); // Миттєве візуальне оновлення
-            saveData(); // Синхронізація
+            render(); 
+            saveData(); 
         }
     }
 
@@ -160,15 +181,6 @@
         currentDate.setMonth(currentDate.getMonth() + dir);
         loadData();
     }
-
-    window.toggleTheme = function() {
-        const body = document.body;
-        const newTheme = body.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-        body.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
-    }
-    
-    if(localStorage.getItem('theme')) document.body.setAttribute('data-theme', localStorage.getItem('theme'));
 
     loadData();
 </script>

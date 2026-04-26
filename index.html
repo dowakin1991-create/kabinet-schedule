@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KABINET - Графік (Перегляд)</title>
+    <style>
+        :root {
+            /* Світла тема */
+            --bg-body: #f4f7f6;
+            --bg-card: #ffffff;
+            --text-main: #2c3e50;
+            --primary: #1F6B6B;
+            --weekend: #e0e0e0;
+            --border: #dee2e6;
+            --row-1: #fdf2f2; --row-2: #f0f7f4; --row-3: #fef6e3; --row-4: #f3f0f7; --row-5: #eef5fb;
+        }
+
+        [data-theme="dark"] {
+            /* Темна тема */
+            --bg-body: #121212;
+            --bg-card: #1e1e1e;
+            --text-main: #e0e0e0;
+            --primary: #2ebfbf;
+            --weekend: #333333;
+            --border: #444444;
+            --row-1: #3a2a2a; --row-2: #2a3a32; --row-3: #3a352a; --row-4: #2e2a3a; --row-5: #2a333a;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            margin: 0; padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; }
+
+        header {
+            display: flex; justify-content: space-between; align-items: center;
+            background: var(--bg-card); padding: 15px 25px;
+            border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .logo { height: 60px; }
+
+        .theme-toggle {
+            cursor: pointer; padding: 10px; border-radius: 50%;
+            border: 2px solid var(--primary); background: none; color: var(--primary);
+            font-size: 1.2rem;
+        }
+
+        table {
+            width: 100%; border-collapse: collapse; background: var(--bg-card);
+            border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        th, td { border: 1px solid var(--border); padding: 10px 5px; text-align: center; }
+        th { background: var(--primary); color: white; font-weight: 500; font-size: 0.9rem; }
+        
+        .weekend { background-color: var(--weekend) !important; }
+        .unavailable { color: #ff4d4d; font-weight: 900; font-size: 1.5rem; line-height: 0; }
+        .shift { font-weight: bold; color: var(--primary); }
+
+        /* Пудрові рядки */
+        tr:nth-child(5n+1) td:not(.weekend) { background-color: var(--row-1); }
+        tr:nth-child(5n+2) td:not(.weekend) { background-color: var(--row-2); }
+        tr:nth-child(5n+3) td:not(.weekend) { background-color: var(--row-3); }
+        tr:nth-child(5n+4) td:not(.weekend) { background-color: var(--row-4); }
+        tr:nth-child(5n+5) td:not(.weekend) { background-color: var(--row-5); }
+    </style>
+</head>
+<body data-theme="light">
+
+<div class="container">
+    <header>
+        <img src="logo.png" alt="Kabinet Logo" class="logo">
+        <div style="text-align:center">
+            <button id="prev">◀</button>
+            <span id="month-label" style="font-weight:bold; margin: 0 15px;">Квітень 2026</span>
+            <button id="next">▶</button>
+        </div>
+        <button class="theme-toggle" onclick="toggleTheme()">🌓</button>
+    </header>
+
+    <div style="overflow-x: auto;">
+        <table id="schedule">
+            <thead><tr id="header-row"></tr></thead>
+            <tbody id="body-row"></tbody>
+        </table>
+    </div>
+    <p style="font-size: 0.8rem; margin-top: 10px; color: #888;">* Натисніть на клітинку, щоб поставити червону крапку (якщо не можете працювати)</p>
+</div>
+
+<script>
+    // Тема
+    function toggleTheme() {
+        const body = document.body;
+        const newTheme = body.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+        body.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+    }
+    if(localStorage.getItem('theme')) document.body.setAttribute('data-theme', localStorage.getItem('theme'));
+
+    // Логіка календаря (спрощена для прикладу)
+    let employees = [
+        { name: "Марічка", shifts: [1,2,5], unavail: [] },
+        { name: "Віталік", shifts: [3,4], unavail: [15] }
+    ];
+
+    function render() {
+        const head = document.getElementById('header-row');
+        const body = document.getElementById('body-row');
+        head.innerHTML = '<th>Ім\'я</th>';
+        for(let i=1; i<=30; i++) head.innerHTML += `<th class="${[4,5,11,12,18,19,25,26].includes(i)?'weekend':''}">${i}</th>`;
+
+        body.innerHTML = employees.map(emp => `
+            <tr>
+                <td style="font-weight:bold; text-align:left; padding-left:10px;">${emp.name}</td>
+                ${Array.from({length:30}, (_, i) => {
+                    const day = i + 1;
+                    const isWeekend = [4,5,11,12,18,19,25,26].includes(day);
+                    let content = emp.shifts.includes(day) ? '<span class="shift">X</span>' : '';
+                    if(emp.unavail.includes(day)) content = '<span class="unavailable">•</span>';
+                    return `<td class="${isWeekend?'weekend':''}" onclick="markUnavail('${emp.name}', ${day})">${content}</td>`;
+                }).join('')}
+            </tr>
+        `).join('');
+    }
+
+    function markUnavail(name, day) {
+        const emp = employees.find(e => e.name === name);
+        if(emp.unavail.includes(day)) emp.unavail = emp.unavail.filter(d => d !== day);
+        else emp.unavail.push(day);
+        render();
+    }
+    render();
+</script>
+</body>
+</html>

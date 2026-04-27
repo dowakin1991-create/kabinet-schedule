@@ -47,6 +47,7 @@
         button { padding: 10px 15px; border-radius: 8px; font-weight: 700; cursor: pointer; border: none; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 5px;}
         .add-btn { background: #3498db; color: white; }
         .viber-btn { background: #7360f2; color: white; }
+        .del-btn { background: none; color: #e74c3c; font-size: 1rem; cursor: pointer; margin-left: 5px; padding: 0 5px; }
         
         .table-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; background: var(--bg-card); border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 900px; background: var(--bg-card); }
@@ -87,6 +88,33 @@
         }
         .modal-btn:active { opacity: 0.7; }
         .modal-btn.danger { color: #e74c3c; border-color: #e74c3c; }
+
+        /* === НАПІВХРЕСТИКИ (Галочки) за допомогою CSS === */
+        /* Найкраще відтворює рукописний вигляд image_9.png і працює з темною темою */
+        .shift-first, .shift-second {
+            position: relative;
+            display: inline-block;
+            width: 1.2em; /* match cell size */
+            height: 1.2em; /* match cell size */
+            vertical-align: middle; /* adjust positioning */
+        }
+        .shift-first::after, .shift-second::after {
+            content: '';
+            position: absolute;
+            top: 25%; /* positioning */
+            left: 20%; /* positioning */
+            width: 50%;
+            height: 100%;
+            border-bottom: 3px solid var(--primary); /* thickness */
+            border-left: 3px solid var(--primary); /* thickness */
+            border-bottom-left-radius: 4px; /* rounded corner like handwriting */
+            transform: rotate(-45deg); /* positioning and rotation to make checkmark */
+            box-sizing: border-box; /* ensure border is inside width/height */
+        }
+        .shift-second::after {
+            transform: scaleX(-1) rotate(-45deg); /* positioning, rotation and horizontal scale mirroring */
+        }
+        /* ============================================== */
     </style>
 </head>
 <body>
@@ -124,8 +152,8 @@
     <div class="modal-content">
         <h3>Оберіть тип зміни</h3>
         <button class="modal-btn" onclick="setShiftType('full')">X - Повний день</button>
-        <button class="modal-btn" onclick="setShiftType('first')">/ - Перша половина</button>
-        <button class="modal-btn" onclick="setShiftType('second')">\ - Друга половина</button>
+        <button class="modal-btn" onclick="setShiftType('first')">Перша половина</button>
+        <button class="modal-btn" onclick="setShiftType('second')">Друга половина</button>
         <button class="modal-btn danger" onclick="setShiftType('none')">Видалити зміну</button>
         <button class="modal-btn" onclick="closeModal()" style="margin-top: 10px; background: transparent; border: none; text-decoration: underline;">Скасувати</button>
     </div>
@@ -169,6 +197,7 @@
         unsubscribe = onSnapshot(doc(db, "schedules", getDocId()), (docSnap) => {
             if (docSnap.exists()) {
                 let data = docSnap.data().employees || [];
+                // Оновлення структури для підтримки півзмін
                 employees = data.map(emp => ({
                     ...emp,
                     shiftsFirst: emp.shiftsFirst || [],
@@ -218,9 +247,10 @@
                     const isWeekend = (new Date(year, month, day).getDay() % 6 === 0);
                     
                     let content = '';
+                    // Прибираємо старі текстові символи і замінюємо на CSS графіку
                     if(emp.shifts.includes(day)) content = '<span class="shift">X</span>';
-                    else if(emp.shiftsFirst.includes(day)) content = '<span class="shift">/</span>';
-                    else if(emp.shiftsSecond.includes(day)) content = '<span class="shift">\\</span>';
+                    else if(emp.shiftsFirst.includes(day)) content = '<span class="shift shift-first"></span>'; // CSS checkmark
+                    else if(emp.shiftsSecond.includes(day)) content = '<span class="shift shift-second"></span>'; // Mirrored CSS checkmark
                     
                     if(emp.unavail.includes(day)) content += '<span class="unavail-marker">•</span>';
                     

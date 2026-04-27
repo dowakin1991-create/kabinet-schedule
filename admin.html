@@ -47,7 +47,6 @@
         button { padding: 10px 15px; border-radius: 8px; font-weight: 700; cursor: pointer; border: none; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 5px;}
         .add-btn { background: #3498db; color: white; }
         .viber-btn { background: #7360f2; color: white; }
-        .del-btn { background: none; color: #e74c3c; font-size: 1rem; cursor: pointer; margin-left: 5px; padding: 0 5px; }
         
         .table-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; background: var(--bg-card); border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 900px; background: var(--bg-card); }
@@ -61,8 +60,7 @@
         th:first-child { background: #34495e; z-index: 6; cursor: default; }
         
         .weekend { background-color: var(--weekend) !important; }
-        .shift { color: var(--primary); font-weight: 900; font-size: 1.1rem; cursor: pointer; }
-        .unavail-marker { color: #ff4d4d; font-weight: 900; font-size: 1.5rem; line-height: 0; vertical-align: bottom; }
+        .unavail-marker { color: #ff4d4d; font-weight: 900; font-size: 1.5rem; line-height: 0; vertical-align: -2px; display: inline-block; }
         
         tr:nth-child(5n+1) td { background-color: var(--row-1); }
         tr:nth-child(5n+2) td { background-color: var(--row-2); }
@@ -70,51 +68,46 @@
         tr:nth-child(5n+4) td { background-color: var(--row-4); }
         tr:nth-child(5n+5) td { background-color: var(--row-5); }
 
-        /* СПЛИВАЮЧЕ ВІКНО ДЛЯ ЗМІН */
+        /* ВЕКТОРНІ ІКОНКИ ДЛЯ ЗМІН (Ідеальний рукописний вигляд) */
+        .shift-icon {
+            display: inline-block;
+            width: 18px; 
+            height: 18px;
+            background-color: var(--primary); /* Колір автоматично змінюється в темній темі */
+            vertical-align: middle;
+            cursor: pointer;
+        }
+        .shift-full {
+            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M3,3 L17,17 M17,3 L3,17' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M3,3 L17,17 M17,3 L3,17' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain;
+        }
+        .shift-first {
+            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M3,3 L17,17 M17,3 L10,10' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M3,3 L17,17 M17,3 L10,10' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain;
+        }
+        .shift-second {
+            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M17,3 L3,17 M3,3 L10,10' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M17,3 L3,17 M3,3 L10,10' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain;
+        }
+
+        /* СПЛИВАЮЧЕ ВІКНО */
         .modal-overlay {
             display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;
             backdrop-filter: blur(5px);
         }
         .modal-content {
-            background: var(--bg-card); padding: 20px; border-radius: 15px; width: 300px;
+            background: var(--bg-card); padding: 20px; border-radius: 15px; width: 280px;
             display: flex; flex-direction: column; gap: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
         }
         .modal-content h3 { margin: 0 0 10px 0; text-align: center; font-size: 1.1rem; }
         .modal-btn {
             padding: 12px; border-radius: 8px; border: 1px solid var(--border);
             background: var(--bg-body); color: var(--text-main); font-weight: bold; cursor: pointer;
-            font-size: 1rem;
+            font-size: 1rem; display: flex; align-items: center; justify-content: center; gap: 10px;
         }
         .modal-btn:active { opacity: 0.7; }
         .modal-btn.danger { color: #e74c3c; border-color: #e74c3c; }
-
-        /* === НАПІВХРЕСТИКИ (Галочки) за допомогою CSS === */
-        /* Найкраще відтворює рукописний вигляд image_9.png і працює з темною темою */
-        .shift-first, .shift-second {
-            position: relative;
-            display: inline-block;
-            width: 1.2em; /* match cell size */
-            height: 1.2em; /* match cell size */
-            vertical-align: middle; /* adjust positioning */
-        }
-        .shift-first::after, .shift-second::after {
-            content: '';
-            position: absolute;
-            top: 25%; /* positioning */
-            left: 20%; /* positioning */
-            width: 50%;
-            height: 100%;
-            border-bottom: 3px solid var(--primary); /* thickness */
-            border-left: 3px solid var(--primary); /* thickness */
-            border-bottom-left-radius: 4px; /* rounded corner like handwriting */
-            transform: rotate(-45deg); /* positioning and rotation to make checkmark */
-            box-sizing: border-box; /* ensure border is inside width/height */
-        }
-        .shift-second::after {
-            transform: scaleX(-1) rotate(-45deg); /* positioning, rotation and horizontal scale mirroring */
-        }
-        /* ============================================== */
     </style>
 </head>
 <body>
@@ -151,11 +144,11 @@
 <div id="shiftModal" class="modal-overlay">
     <div class="modal-content">
         <h3>Оберіть тип зміни</h3>
-        <button class="modal-btn" onclick="setShiftType('full')">X - Повний день</button>
-        <button class="modal-btn" onclick="setShiftType('first')">Перша половина</button>
-        <button class="modal-btn" onclick="setShiftType('second')">Друга половина</button>
+        <button class="modal-btn" onclick="setShiftType('full')"><span class="shift-icon shift-full" style="background-color: var(--text-main);"></span> Повний день</button>
+        <button class="modal-btn" onclick="setShiftType('first')"><span class="shift-icon shift-first" style="background-color: var(--text-main);"></span> Перша половина</button>
+        <button class="modal-btn" onclick="setShiftType('second')"><span class="shift-icon shift-second" style="background-color: var(--text-main);"></span> Друга половина</button>
         <button class="modal-btn danger" onclick="setShiftType('none')">Видалити зміну</button>
-        <button class="modal-btn" onclick="closeModal()" style="margin-top: 10px; background: transparent; border: none; text-decoration: underline;">Скасувати</button>
+        <button class="modal-btn" onclick="closeModal()" style="margin-top: 5px; background: transparent; border: none; text-decoration: underline;">Скасувати</button>
     </div>
 </div>
 
@@ -197,7 +190,6 @@
         unsubscribe = onSnapshot(doc(db, "schedules", getDocId()), (docSnap) => {
             if (docSnap.exists()) {
                 let data = docSnap.data().employees || [];
-                // Оновлення структури для підтримки півзмін
                 employees = data.map(emp => ({
                     ...emp,
                     shiftsFirst: emp.shiftsFirst || [],
@@ -247,10 +239,9 @@
                     const isWeekend = (new Date(year, month, day).getDay() % 6 === 0);
                     
                     let content = '';
-                    // Прибираємо старі текстові символи і замінюємо на CSS графіку
-                    if(emp.shifts.includes(day)) content = '<span class="shift">X</span>';
-                    else if(emp.shiftsFirst.includes(day)) content = '<span class="shift shift-first"></span>'; // CSS checkmark
-                    else if(emp.shiftsSecond.includes(day)) content = '<span class="shift shift-second"></span>'; // Mirrored CSS checkmark
+                    if(emp.shifts.includes(day)) content = '<span class="shift-icon shift-full"></span>';
+                    else if(emp.shiftsFirst.includes(day)) content = '<span class="shift-icon shift-first"></span>';
+                    else if(emp.shiftsSecond.includes(day)) content = '<span class="shift-icon shift-second"></span>';
                     
                     if(emp.unavail.includes(day)) content += '<span class="unavail-marker">•</span>';
                     

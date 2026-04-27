@@ -31,12 +31,7 @@
         .table-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; background: var(--bg-card); border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 800px; background: var(--bg-card); }
         
-        /* Збільшено висоту для двох рядків тексту */
-        th, td { 
-            padding: 4px; height: 44px; text-align: center; 
-            border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); 
-            box-sizing: border-box;
-        }
+        th, td { padding: 4px; height: 44px; text-align: center; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); box-sizing: border-box; }
         th { border-top: 1px solid var(--border); background: var(--primary); color: white; font-weight: 500; font-size: 0.9rem; }
         
         th:first-child, td:first-child { 
@@ -77,7 +72,7 @@
             <tbody id="body-row"></tbody>
         </table>
     </div>
-    <p class="hint-text">* Натисніть на клітинку, щоб поставити червону крапку (якщо не можете працювати)</p>
+    <p class="hint-text">* Натисніть на клітинку, щоб поставити червону крапку (якщо не можете працювати)<br><b>X</b> - Повний день | <b>/</b> - Перша половина | <b>\</b> - Друга половина</p>
 </div>
 
 <script type="module">
@@ -100,7 +95,7 @@
     currentDate.setDate(1); 
     let employees = [];
     const monthNames = ["Січень", "Лютий", "Березень", "Квітень", "Травень", "Червень", "Липень", "Серпень", "Вересень", "Жовтень", "Листопад", "Грудень"];
-    const dayNames = ["Нд", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"]; // Дні тижня
+    const dayNames = ["Нд", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"]; 
     let unsubscribe = null;
 
     function getDocId() {
@@ -114,11 +109,16 @@
         
         unsubscribe = onSnapshot(doc(db, "schedules", getDocId()), (docSnap) => {
             if (docSnap.exists()) {
-                employees = docSnap.data().employees || [];
+                let data = docSnap.data().employees || [];
+                employees = data.map(emp => ({
+                    ...emp,
+                    shiftsFirst: emp.shiftsFirst || [],
+                    shiftsSecond: emp.shiftsSecond || []
+                }));
                 render();
             } else {
                 if (employees.length > 0) {
-                    employees = employees.map(emp => ({ ...emp, shifts: [], unavail: [] }));
+                    employees = employees.map(emp => ({ ...emp, shifts: [], shiftsFirst: [], shiftsSecond: [], unavail: [] }));
                     saveData();
                 } else {
                     employees = [];
@@ -146,7 +146,6 @@
             const dayIndex = new Date(year, month, i).getDay();
             const isWeekend = (dayIndex === 0 || dayIndex === 6);
             
-            // Додано день тижня під числом
             headHtml += `<th class="${isWeekend?'weekend':''}" style="line-height: 1.1;">
                 ${i}<br><span style="font-size: 0.65rem; font-weight: normal; opacity: 0.85;">${dayNames[dayIndex]}</span>
             </th>`;
@@ -159,8 +158,14 @@
                 ${Array.from({length:daysInMonth}, (_, i) => {
                     const day = i + 1;
                     const isWeekend = (new Date(year, month, day).getDay() % 6 === 0);
-                    let content = emp.shifts.includes(day) ? '<span class="shift">X</span>' : '';
-                    if(emp.unavail.includes(day)) content = '<span class="unavailable">•</span>';
+                    
+                    let content = '';
+                    if(emp.shifts.includes(day)) content = '<span class="shift">X</span>';
+                    else if(emp.shiftsFirst.includes(day)) content = '<span class="shift">/</span>';
+                    else if(emp.shiftsSecond.includes(day)) content = '<span class="shift">\\</span>';
+                    
+                    if(emp.unavail.includes(day)) content += '<span class="unavailable">•</span>';
+                    
                     return `<td class="${isWeekend?'weekend':''}" onclick="markUnavail(${emp.id}, ${day})">${content}</td>`;
                 }).join('')}
             </tr>

@@ -68,26 +68,29 @@
         tr:nth-child(5n+4) td { background-color: var(--row-4); }
         tr:nth-child(5n+5) td { background-color: var(--row-5); }
 
-        /* ВЕКТОРНІ ІКОНКИ ДЛЯ ЗМІН (SVG значки топ) */
+        /* ВЕКТОРНІ ІКОНКИ ДЛЯ ЗМІН (Оновлені по твоєму ескізу) */
         .shift-icon {
             display: inline-block;
             width: 18px; 
             height: 18px;
-            background-color: var(--primary); /* Колір автоматично змінюється в темній темі */
+            background-color: var(--primary);
             vertical-align: middle;
             cursor: pointer;
         }
+        /* Звичайний Х */
         .shift-full {
-            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M3,3 L17,17 M17,3 L3,17' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain;
-            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M3,3 L17,17 M17,3 L3,17' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain;
+            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M4,4 L16,16 M16,4 L4,16' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M4,4 L16,16 M16,4 L4,16' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain;
         }
+        /* Y - Перша половина */
         .shift-first {
-            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M3,3 L17,17 M17,3 L10,10' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain;
-            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M3,3 L17,17 M17,3 L10,10' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain;
+            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M4,4 L10,10 M16,4 L5,18' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M4,4 L10,10 M16,4 L5,18' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain;
         }
+        /* Лямбда - Друга половина */
         .shift-second {
-            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M17,3 L3,17 M3,3 L10,10' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain;
-            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M17,3 L3,17 M3,3 L10,10' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain;
+            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M14,3 L5,18 M9.5,11 L16,17' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M14,3 L5,18 M9.5,11 L16,17' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain;
         }
 
         /* СПЛИВАЮЧЕ ВІКНО */
@@ -190,7 +193,6 @@
         unsubscribe = onSnapshot(doc(db, "schedules", getDocId()), (docSnap) => {
             if (docSnap.exists()) {
                 let data = docSnap.data().employees || [];
-                // Оновлення структури для підтримки півзмін
                 employees = data.map(emp => ({
                     ...emp,
                     shiftsFirst: emp.shiftsFirst || [],
@@ -240,10 +242,10 @@
                     const isWeekend = (new Date(year, month, day).getDay() % 6 === 0);
                     
                     let content = '';
-                    // Оновлена логіка рендерингу для півзмін
+                    // Оновлена логіка: красиві іконки
                     if(emp.shifts.includes(day)) content = '<span class="shift-icon shift-full"></span>';
-                    else if(emp.shiftsFirst.includes(day)) content = '<span class="shift-icon shift-first"></span>'; // Y
-                    else if(emp.shiftsSecond.includes(day)) content = '<span class="shift-icon shift-second"></span>'; // Mirrored
+                    else if(emp.shiftsFirst.includes(day)) content = '<span class="shift-icon shift-first"></span>';
+                    else if(emp.shiftsSecond.includes(day)) content = '<span class="shift-icon shift-second"></span>';
                     
                     if(emp.unavail.includes(day)) content += '<span class="unavail-marker">•</span>';
                     

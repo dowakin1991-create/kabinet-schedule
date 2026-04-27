@@ -68,7 +68,7 @@
         tr:nth-child(5n+4) td { background-color: var(--row-4); }
         tr:nth-child(5n+5) td { background-color: var(--row-5); }
 
-        /* ВЕКТОРНІ ІКОНКИ ДЛЯ ЗМІН (Ідеальний рукописний вигляд) */
+        /* ВЕКТОРНІ ІКОНКИ ДЛЯ ЗМІН (SVG значки топ) */
         .shift-icon {
             display: inline-block;
             width: 18px; 
@@ -190,6 +190,7 @@
         unsubscribe = onSnapshot(doc(db, "schedules", getDocId()), (docSnap) => {
             if (docSnap.exists()) {
                 let data = docSnap.data().employees || [];
+                // Оновлення структури для підтримки півзмін
                 employees = data.map(emp => ({
                     ...emp,
                     shiftsFirst: emp.shiftsFirst || [],
@@ -239,9 +240,10 @@
                     const isWeekend = (new Date(year, month, day).getDay() % 6 === 0);
                     
                     let content = '';
+                    // Оновлена логіка рендерингу для півзмін
                     if(emp.shifts.includes(day)) content = '<span class="shift-icon shift-full"></span>';
-                    else if(emp.shiftsFirst.includes(day)) content = '<span class="shift-icon shift-first"></span>';
-                    else if(emp.shiftsSecond.includes(day)) content = '<span class="shift-icon shift-second"></span>';
+                    else if(emp.shiftsFirst.includes(day)) content = '<span class="shift-icon shift-first"></span>'; // Y
+                    else if(emp.shiftsSecond.includes(day)) content = '<span class="shift-icon shift-second"></span>'; // Mirrored
                     
                     if(emp.unavail.includes(day)) content += '<span class="unavail-marker">•</span>';
                     

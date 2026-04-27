@@ -43,7 +43,8 @@
         th:first-child { z-index: 3; background: var(--primary); }
         
         .weekend { background-color: var(--weekend) !important; }
-        .unavail-marker { color: #ff4d4d; font-weight: 900; font-size: 1.5rem; line-height: 0; vertical-align: -2px; display: inline-block; }
+        .unavailable { color: #ff4d4d; font-weight: 900; font-size: 1.5rem; line-height: 0; cursor: pointer; vertical-align: bottom; }
+        .shift { font-weight: 700; color: var(--primary); cursor: pointer; }
         
         tr:nth-child(5n+1) td { background-color: var(--row-1); }
         tr:nth-child(5n+2) td { background-color: var(--row-2); }
@@ -51,10 +52,6 @@
         tr:nth-child(5n+4) td { background-color: var(--row-4); }
         tr:nth-child(5n+5) td { background-color: var(--row-5); }
         
-        .hint-text { font-size: 0.8rem; margin-top: 15px; color: #888; font-weight: 500; text-align: center; display: flex; flex-direction: column; gap: 8px;}
-        .hint-legend { display: flex; justify-content: center; align-items: center; gap: 15px; flex-wrap: wrap; }
-        .legend-item { display: flex; align-items: center; gap: 5px; }
-
         /* ВЕКТОРНІ ІКОНКИ ДЛЯ ЗМІН */
         .shift-icon {
             display: inline-block; width: 18px; height: 18px;
@@ -72,6 +69,10 @@
             -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M17,3 L3,17 M3,3 L10,10' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain;
             mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M17,3 L3,17 M3,3 L10,10' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain;
         }
+
+        .hint-text { font-size: 0.8rem; margin-top: 15px; color: #888; font-weight: 500; text-align: center; display: flex; flex-direction: column; gap: 8px;}
+        .hint-legend { display: flex; justify-content: center; align-items: center; gap: 15px; flex-wrap: wrap; }
+        .legend-item { display: flex; align-items: center; gap: 5px; }
     </style>
 </head>
 <body>
@@ -187,11 +188,12 @@
                     const isWeekend = (new Date(year, month, day).getDay() % 6 === 0);
                     
                     let content = '';
+                    // Оновлена логіка рендерингу для півзмін
                     if(emp.shifts.includes(day)) content = '<span class="shift-icon shift-full"></span>';
-                    else if(emp.shiftsFirst.includes(day)) content = '<span class="shift-icon shift-first"></span>';
-                    else if(emp.shiftsSecond.includes(day)) content = '<span class="shift-icon shift-second"></span>';
+                    else if(emp.shiftsFirst.includes(day)) content = '<span class="shift-icon shift-first"></span>'; // Y
+                    else if(emp.shiftsSecond.includes(day)) content = '<span class="shift-icon shift-second"></span>'; // Mirrored
                     
-                    if(emp.unavail.includes(day)) content += '<span class="unavail-marker">•</span>';
+                    if(emp.unavail.includes(day)) content += '<span class="unavailable">•</span>';
                     
                     return `<td class="${isWeekend?'weekend':''}" onclick="markUnavail(${emp.id}, ${day})">${content}</td>`;
                 }).join('')}

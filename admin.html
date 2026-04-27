@@ -10,6 +10,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="KABINET ШЕФ">
+
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
@@ -28,13 +29,7 @@
             }
         }
 
-        /* Забороняємо виділення тексту для більшої схожості з додатком */
-        body { 
-            font-family: 'Montserrat', sans-serif; background-color: var(--bg-body); 
-            color: var(--text-main); margin: 0; padding: 10px; transition: background-color 0.3s ease; 
-            -webkit-user-select: none; user-select: none; 
-        }
-        
+        body { font-family: 'Montserrat', sans-serif; background-color: var(--bg-body); color: var(--text-main); margin: 0; padding: 10px; transition: background-color 0.3s ease; -webkit-user-select: none; user-select: none; }
         .container { max-width: 1300px; margin: 0 auto; }
         
         header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 15px; background: var(--bg-card); padding: 12px 15px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 15px; border: 1px solid var(--border); }
@@ -56,21 +51,11 @@
         .table-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; background: var(--bg-card); border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 900px; background: var(--bg-card); }
         
-        th, td { 
-            padding: 4px; height: 44px; text-align: center; 
-            border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); 
-            box-sizing: border-box;
-        }
+        th, td { padding: 4px; height: 44px; text-align: center; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); box-sizing: border-box; }
         th { background: #34495e; color: white; position: sticky; top: 0; z-index: 4; font-size: 0.9rem; }
         
         th:first-child, td:first-child { 
-            position: sticky; left: 0; z-index: 5; background: inherit; 
-            text-align: left; padding-left: 10px; font-weight: 700; 
-            border-left: 1px solid var(--border); 
-            min-width: 120px; max-width: 150px;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.05); 
-            cursor: pointer; 
+            position: sticky; left: 0; z-index: 5; background: inherit; text-align: left; padding-left: 10px; font-weight: 700; border-left: 1px solid var(--border); min-width: 120px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-shadow: 2px 0 5px rgba(0,0,0,0.05); cursor: pointer; 
         }
         th:first-child { background: #34495e; z-index: 6; cursor: default; }
         
@@ -83,6 +68,25 @@
         tr:nth-child(5n+3) td { background-color: var(--row-3); }
         tr:nth-child(5n+4) td { background-color: var(--row-4); }
         tr:nth-child(5n+5) td { background-color: var(--row-5); }
+
+        /* СПЛИВАЮЧЕ ВІКНО ДЛЯ ЗМІН */
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;
+            backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            background: var(--bg-card); padding: 20px; border-radius: 15px; width: 300px;
+            display: flex; flex-direction: column; gap: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        .modal-content h3 { margin: 0 0 10px 0; text-align: center; font-size: 1.1rem; }
+        .modal-btn {
+            padding: 12px; border-radius: 8px; border: 1px solid var(--border);
+            background: var(--bg-body); color: var(--text-main); font-weight: bold; cursor: pointer;
+            font-size: 1rem;
+        }
+        .modal-btn:active { opacity: 0.7; }
+        .modal-btn.danger { color: #e74c3c; border-color: #e74c3c; }
     </style>
 </head>
 <body>
@@ -116,6 +120,17 @@
     </div>
 </div>
 
+<div id="shiftModal" class="modal-overlay">
+    <div class="modal-content">
+        <h3>Оберіть тип зміни</h3>
+        <button class="modal-btn" onclick="setShiftType('full')">X - Повний день</button>
+        <button class="modal-btn" onclick="setShiftType('first')">/ - Перша половина</button>
+        <button class="modal-btn" onclick="setShiftType('second')">\ - Друга половина</button>
+        <button class="modal-btn danger" onclick="setShiftType('none')">Видалити зміну</button>
+        <button class="modal-btn" onclick="closeModal()" style="margin-top: 10px; background: transparent; border: none; text-decoration: underline;">Скасувати</button>
+    </div>
+</div>
+
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
     import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
@@ -139,6 +154,9 @@
     let employees = [];
     let unsubscribe = null;
 
+    window.currentEditEmpId = null;
+    window.currentEditDay = null;
+
     function getDocId() {
         return `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
     }
@@ -150,11 +168,16 @@
         
         unsubscribe = onSnapshot(doc(db, "schedules", getDocId()), (docSnap) => {
             if (docSnap.exists()) {
-                employees = docSnap.data().employees || [];
+                let data = docSnap.data().employees || [];
+                employees = data.map(emp => ({
+                    ...emp,
+                    shiftsFirst: emp.shiftsFirst || [],
+                    shiftsSecond: emp.shiftsSecond || []
+                }));
                 render();
             } else {
                 if (employees.length > 0) {
-                    employees = employees.map(emp => ({ ...emp, shifts: [], unavail: [] }));
+                    employees = employees.map(emp => ({ ...emp, shifts: [], shiftsFirst: [], shiftsSecond: [], unavail: [] }));
                     saveData(); 
                 } else {
                     employees = [];
@@ -165,11 +188,8 @@
     }
 
     async function saveData() {
-        try {
-            await setDoc(doc(db, "schedules", getDocId()), { employees });
-        } catch (e) {
-            console.error(e);
-        }
+        try { await setDoc(doc(db, "schedules", getDocId()), { employees }); } 
+        catch (e) { console.error(e); }
     }
 
     function render() {
@@ -184,7 +204,6 @@
         for(let i=1; i<=daysInMonth; i++) {
             const dayIndex = new Date(year, month, i).getDay();
             const isWeekend = (dayIndex === 0 || dayIndex === 6);
-            
             headHtml += `<th class="${isWeekend?'weekend':''}" style="line-height: 1.1;">
                 ${i}<br><span style="font-size: 0.65rem; font-weight: normal; opacity: 0.85;">${dayNames[dayIndex]}</span>
             </th>`;
@@ -197,9 +216,15 @@
                 ${Array.from({length: daysInMonth}, (_, i) => {
                     const day = i + 1;
                     const isWeekend = (new Date(year, month, day).getDay() % 6 === 0);
-                    let content = emp.shifts.includes(day) ? '<span class="shift">X</span>' : '';
+                    
+                    let content = '';
+                    if(emp.shifts.includes(day)) content = '<span class="shift">X</span>';
+                    else if(emp.shiftsFirst.includes(day)) content = '<span class="shift">/</span>';
+                    else if(emp.shiftsSecond.includes(day)) content = '<span class="shift">\\</span>';
+                    
                     if(emp.unavail.includes(day)) content += '<span class="unavail-marker">•</span>';
-                    return `<td class="${isWeekend?'weekend':''}" onclick="toggleShift(${emp.id}, ${day})">${content}</td>`;
+                    
+                    return `<td class="${isWeekend?'weekend':''}" onclick="handleCellClick(${emp.id}, ${day})">${content}</td>`;
                 }).join('')}
             </tr>
         `).join('');
@@ -209,7 +234,7 @@
         const nameInput = document.getElementById('newEmpName');
         const name = nameInput.value.trim();
         if(name) {
-            employees.push({ id: Date.now(), name: name, shifts: [], unavail: [] });
+            employees.push({ id: Date.now(), name: name, shifts: [], shiftsFirst: [], shiftsSecond: [], unavail: [] });
             nameInput.value = '';
             saveData(); 
         }
@@ -233,14 +258,46 @@
         }
     }
 
-    window.toggleShift = function(empId, day) {
+    window.handleCellClick = function(empId, day) {
         const emp = employees.find(e => e.id === empId);
-        if(emp) {
-            if(emp.shifts.includes(day)) emp.shifts = emp.shifts.filter(d => d !== day);
-            else emp.shifts.push(day);
-            render(); 
-            saveData(); 
+        if(!emp) return;
+
+        const hasShift = emp.shifts.includes(day) || emp.shiftsFirst.includes(day) || emp.shiftsSecond.includes(day);
+
+        if (!hasShift) {
+            emp.shifts.push(day);
+            render();
+            saveData();
+        } else {
+            window.currentEditEmpId = empId;
+            window.currentEditDay = day;
+            document.getElementById('shiftModal').style.display = 'flex';
         }
+    }
+
+    window.setShiftType = function(type) {
+        const emp = employees.find(e => e.id === window.currentEditEmpId);
+        const day = window.currentEditDay;
+        
+        if(!emp) return;
+
+        emp.shifts = emp.shifts.filter(d => d !== day);
+        emp.shiftsFirst = emp.shiftsFirst.filter(d => d !== day);
+        emp.shiftsSecond = emp.shiftsSecond.filter(d => d !== day);
+
+        if (type === 'full') emp.shifts.push(day);
+        if (type === 'first') emp.shiftsFirst.push(day);
+        if (type === 'second') emp.shiftsSecond.push(day);
+
+        closeModal();
+        render();
+        saveData();
+    }
+
+    window.closeModal = function() {
+        document.getElementById('shiftModal').style.display = 'none';
+        window.currentEditEmpId = null;
+        window.currentEditDay = null;
     }
 
     window.changeMonth = function(dir) {

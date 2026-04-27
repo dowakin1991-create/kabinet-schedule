@@ -43,154 +43,41 @@
         th:first-child { z-index: 3; background: var(--primary); }
         
         .weekend { background-color: var(--weekend) !important; }
-        .unavailable { color: #ff4d4d; font-weight: 900; font-size: 1.5rem; line-height: 0; cursor: pointer; vertical-align: bottom; }
-        .shift { font-weight: 700; color: var(--primary); cursor: pointer; }
-        
-        tr:nth-child(5n+1) td { background-color: var(--row-1); }
-        tr:nth-child(5n+2) td { background-color: var(--row-2); }
-        tr:nth-child(5n+3) td { background-color: var(--row-3); }
-        tr:nth-child(5n+4) tdЦе чудове оновлення для гнучкості графіка! Я зрозумів, що ти хочеш, щоб це виглядало саме як рукописні позначки на дошці — недомальовані хрестики.
-
-Щоб відтворити рукописний вигляд image_9.png і відійти від текстових символів (`/` та `\`), ми використаємо справжню магію CSS-рисування за допомогою псевдоелементів. 
-
-**Як це тепер працює:**
-Я намалюю одну діагональ хрестика (галочку) за допомогою CSS псевдоелементів `::after`. Я використаю властивості `border-bottom`, `border-left`, `transform: rotate(...)` та `border-radius`, щоб краї виглядали м'якше, як рукопис. Також я віддзеркалю галочку для другої півзміни за допомогою `scaleX(-1)`. Це технічно чисте та масштабоване рішення, яке найкраще відтворює рукописний вигляд image_9.png і працює з темною темою.
-
-Ось оновлені коди для обох файлів.
-
-### 1. `admin.html` (Панель ШЕФА)
-Додано CSS-стилі псевдоелементів для графічного відображення недомальованих хрестиків (галочок) та оновлено рендер. Текст кнопок модального вікна оновлено для наочності.
-
-```html
-<!DOCTYPE html>
-<html lang="uk">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>KABINET - Панель ШЕФА</title>
-    
-    <link rel="icon" type="image/png" href="IMG_9802.png">
-    <link rel="apple-touch-icon" href="IMG_9802.png">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="KABINET ШЕФ">
-
-    <link href="[https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;900&display=swap](https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;900&display=swap)" rel="stylesheet">
-    <script src="[https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js](https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js)"></script>
-    
-    <style>
-        :root {
-            --bg-body: #f4f7f6; --bg-card: #ffffff; --text-main: #2c3e50;
-            --primary: #1F6B6B; --weekend: #e9ecef; --border: #c4cdd5; 
-            --row-1: #fdf2f2; --row-2: #f0f7f4; --row-3: #fef6e3; --row-4: #f3f0f7; --row-5: #eef5fb;
-        }
-
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --bg-body: #121212; --bg-card: #1e1e1e; --text-main: #e0e0e0;
-                --primary: #2ebfbf; --weekend: #2a2a2a; --border: #444444;
-                --row-1: #3a2a2a; --row-2: #2a3a32; --row-3: #3a352a; --row-4: #2e2a3a; --row-5: #2a333a;
-            }
-        }
-
-        body { font-family: 'Montserrat', sans-serif; background-color: var(--bg-body); color: var(--text-main); margin: 0; padding: 10px; transition: background-color 0.3s ease; -webkit-user-select: none; user-select: none; }
-        .container { max-width: 1300px; margin: 0 auto; }
-        
-        header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 15px; background: var(--bg-card); padding: 12px 15px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 15px; border: 1px solid var(--border); }
-        .logo-block { display: flex; align-items: center; gap: 10px; }
-        .logo { height: 35px; object-fit: contain; }
-        .admin-badge { background: #e74c3c; color: white; padding: 3px 8px; border-radius: 6px; font-size: 0.65rem; font-weight: 900; letter-spacing: 1px; display: inline-block; }
-        
-        .month-selector { display: flex; align-items: center; justify-content: center; flex-grow: 1; }
-        .nav-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; padding: 0 15px; color: var(--text-main); }
-        
-        .admin-controls { display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; background: var(--bg-card); padding: 12px; border-radius: 12px; border: 1px solid var(--border); }
-        @media(min-width: 768px) { .admin-controls { flex-direction: row; align-items: center; } }
-        
-        input { flex-grow: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-body); color: var(--text-main); font-family: inherit; font-size: 0.95rem; -webkit-user-select: auto; user-select: auto; }
-        button { padding: 10px 15px; border-radius: 8px; font-weight: 700; cursor: pointer; border: none; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 5px;}
-        .add-btn { background: #3498db; color: white; }
-        .viber-btn { background: #7360f2; color: white; }
-        .del-btn { background: none; color: #e74c3c; font-size: 1rem; cursor: pointer; margin-left: 5px; padding: 0 5px; }
-        
-        .table-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; background: var(--bg-card); border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 900px; background: var(--bg-card); }
-        
-        th, td { padding: 4px; height: 44px; text-align: center; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); box-sizing: border-box; }
-        th { background: #34495e; color: white; position: sticky; top: 0; z-index: 4; font-size: 0.9rem; }
-        
-        th:first-child, td:first-child { 
-            position: sticky; left: 0; z-index: 5; background: inherit; text-align: left; padding-left: 10px; font-weight: 700; border-left: 1px solid var(--border); min-width: 120px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-shadow: 2px 0 5px rgba(0,0,0,0.05); cursor: pointer; 
-        }
-        th:first-child { background: #34495e; z-index: 6; cursor: default; }
-        
-        .weekend { background-color: var(--weekend) !important; }
-        .shift { color: var(--primary); font-weight: 900; font-size: 1.1rem; cursor: pointer; }
-        .unavail-marker { color: #ff4d4d; font-weight: 900; font-size: 1.5rem; line-height: 0; vertical-align: bottom; }
+        .unavail-marker { color: #ff4d4d; font-weight: 900; font-size: 1.5rem; line-height: 0; vertical-align: -2px; display: inline-block; }
         
         tr:nth-child(5n+1) td { background-color: var(--row-1); }
         tr:nth-child(5n+2) td { background-color: var(--row-2); }
         tr:nth-child(5n+3) td { background-color: var(--row-3); }
         tr:nth-child(5n+4) td { background-color: var(--row-4); }
         tr:nth-child(5n+5) td { background-color: var(--row-5); }
+        
+        .hint-text { font-size: 0.8rem; margin-top: 15px; color: #888; font-weight: 500; text-align: center; display: flex; flex-direction: column; gap: 8px;}
+        .hint-legend { display: flex; justify-content: center; align-items: center; gap: 15px; flex-wrap: wrap; }
+        .legend-item { display: flex; align-items: center; gap: 5px; }
 
-        /* СПЛИВАЮЧЕ ВІКНО ДЛЯ ЗМІН */
-        .modal-overlay {
-            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;
-            backdrop-filter: blur(5px);
+        /* ВЕКТОРНІ ІКОНКИ ДЛЯ ЗМІН */
+        .shift-icon {
+            display: inline-block; width: 18px; height: 18px;
+            background-color: var(--primary); vertical-align: middle;
         }
-        .modal-content {
-            background: var(--bg-card); padding: 20px; border-radius: 15px; width: 300px;
-            display: flex; flex-direction: column; gap: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        .shift-full {
+            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M3,3 L17,17 M17,3 L3,17' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M3,3 L17,17 M17,3 L3,17' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain;
         }
-        .modal-content h3 { margin: 0 0 10px 0; text-align: center; font-size: 1.1rem; }
-        .modal-btn {
-            padding: 12px; border-radius: 8px; border: 1px solid var(--border);
-            background: var(--bg-body); color: var(--text-main); font-weight: bold; cursor: pointer;
-            font-size: 1rem;
+        .shift-first {
+            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M3,3 L17,17 M17,3 L10,10' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M3,3 L17,17 M17,3 L10,10' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain;
         }
-        .modal-btn:active { opacity: 0.7; }
-        .modal-btn.danger { color: #e74c3c; border-color: #e74c3c; }
-
-        /* === НАПІВХРЕСТИКИ (Галочки) за допомогою CSS === */
-        /* Найкраще відтворює рукописний вигляд image_9.png і працює з темною темою */
-        .shift-first, .shift-second {
-            position: relative;
-            display: inline-block;
-            width: 1.2em; /* match cell size */
-            height: 1.2em; /* match cell size */
-            vertical-align: middle; /* adjust positioning */
+        .shift-second {
+            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M17,3 L3,17 M3,3 L10,10' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M17,3 L3,17 M3,3 L10,10' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain;
         }
-        .shift-first::after, .shift-second::after {
-            content: '';
-            position: absolute;
-            top: 25%; /* positioning */
-            left: 20%; /* positioning */
-            width: 50%;
-            height: 100%;
-            border-bottom: 3px solid var(--primary); /* thickness */
-            border-left: 3px solid var(--primary); /* thickness */
-            border-bottom-left-radius: 4px; /* rounded corner like handwriting */
-            transform: rotate(-45deg); /* positioning and rotation to make checkmark */
-            box-sizing: border-box; /* ensure border is inside width/height */
-        }
-        .shift-second::after {
-            transform: scaleX(-1) rotate(-45deg); /* positioning, rotation and horizontal scale mirroring */
-        }
-        /* ============================================== */
     </style>
 </head>
 <body>
-
 <div class="container">
     <header>
-        <div class="logo-block">
-            <div>
-                <span class="admin-badge">ШЕФ</span><br>
-                <img src="IMG_9802.png" alt="Logo" class="logo">
-            </div>
-        </div>
+        <img src="IMG_9802.png" alt="Kabinet Logo" class="logo">
         <div class="month-selector">
             <button class="nav-btn" onclick="changeMonth(-1)">◀</button>
             <span id="month-label" style="font-weight:900; font-size: 1.1rem; text-align: center; min-width: 140px;">...</span>
@@ -198,34 +85,26 @@
         </div>
     </header>
 
-    <div class="admin-controls">
-        <input type="text" id="newEmpName" placeholder="Введіть ім'я">
-        <button class="add-btn" onclick="addEmployee()">+ Додати</button>
-        <button class="viber-btn" onclick="shareScreenshot()">📷 Скріншот</button>
-    </div>
-
-    <div class="table-wrapper" id="capture-area">
-        <table id="admin-table">
-            <thead><tr id="h-row"></tr></thead>
-            <tbody id="b-row"></tbody>
+    <div class="table-wrapper">
+        <table id="schedule">
+            <thead><tr id="header-row"></tr></thead>
+            <tbody id="body-row"></tbody>
         </table>
     </div>
-</div>
-
-<div id="shiftModal" class="modal-overlay">
-    <div class="modal-content">
-        <h3>Оберіть тип зміни</h3>
-        <button class="modal-btn" onclick="setShiftType('full')">X - Повний день</button>
-        <button class="modal-btn" onclick="setShiftType('first')">Перша половина</button>
-        <button class="modal-btn" onclick="setShiftType('second')">Друга половина</button>
-        <button class="modal-btn danger" onclick="setShiftType('none')">Видалити зміну</button>
-        <button class="modal-btn" onclick="closeModal()" style="margin-top: 10px; background: transparent; border: none; text-decoration: underline;">Скасувати</button>
+    
+    <div class="hint-text">
+        <span>* Натисніть на клітинку, щоб поставити червону крапку (якщо не можете працювати)</span>
+        <div class="hint-legend">
+            <div class="legend-item"><span class="shift-icon shift-full"></span> Повний день</div>
+            <div class="legend-item"><span class="shift-icon shift-first"></span> Перша половина</div>
+            <div class="legend-item"><span class="shift-icon shift-second"></span> Друга половина</div>
+        </div>
     </div>
 </div>
 
 <script type="module">
-    import { initializeApp } from "[https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js](https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js)";
-    import { getFirestore, doc, onSnapshot, setDoc } from "[https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js](https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js)";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDgCPf1UqXE4DNhfdGJ6QklEKc055lu4k4",
@@ -241,13 +120,10 @@
 
     let currentDate = new Date();
     currentDate.setDate(1); 
-    const monthNames = ["Січень", "Лютий", "Березень", "Квітень", "Травень", "Червень", "Липень", "Серпень", "Вересень", "Жовтень", "Листопад", "Грудень"];
-    const dayNames = ["Нд", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
     let employees = [];
+    const monthNames = ["Січень", "Лютий", "Березень", "Квітень", "Травень", "Червень", "Липень", "Серпень", "Вересень", "Жовтень", "Листопад", "Грудень"];
+    const dayNames = ["Нд", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"]; 
     let unsubscribe = null;
-
-    window.currentEditEmpId = null;
-    window.currentEditDay = null;
 
     function getDocId() {
         return `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
@@ -261,7 +137,6 @@
         unsubscribe = onSnapshot(doc(db, "schedules", getDocId()), (docSnap) => {
             if (docSnap.exists()) {
                 let data = docSnap.data().employees || [];
-                // Оновлення структури для підтримки півзмін
                 employees = data.map(emp => ({
                     ...emp,
                     shiftsFirst: emp.shiftsFirst || [],
@@ -271,7 +146,7 @@
             } else {
                 if (employees.length > 0) {
                     employees = employees.map(emp => ({ ...emp, shifts: [], shiftsFirst: [], shiftsSecond: [], unavail: [] }));
-                    saveData(); 
+                    saveData();
                 } else {
                     employees = [];
                     render();
@@ -282,21 +157,22 @@
 
     async function saveData() {
         try { await setDoc(doc(db, "schedules", getDocId()), { employees }); } 
-        catch (e) { console.error(e); }
+        catch(e) { console.error(e); }
     }
 
     function render() {
         const year = currentDate.getFullYear();
         const month = currentDate.getMonth();
         const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+        const head = document.getElementById('header-row');
+        const body = document.getElementById('body-row');
         
-        const head = document.getElementById('h-row');
-        const body = document.getElementById('b-row');
-        
-        let headHtml = '<th>Працівник</th>';
+        let headHtml = '<th>Ім\'я</th>';
         for(let i=1; i<=daysInMonth; i++) {
             const dayIndex = new Date(year, month, i).getDay();
             const isWeekend = (dayIndex === 0 || dayIndex === 6);
+            
             headHtml += `<th class="${isWeekend?'weekend':''}" style="line-height: 1.1;">
                 ${i}<br><span style="font-size: 0.65rem; font-weight: normal; opacity: 0.85;">${dayNames[dayIndex]}</span>
             </th>`;
@@ -305,128 +181,37 @@
 
         body.innerHTML = employees.map(emp => `
             <tr>
-                <td onclick="editEmployee(${emp.id}, '${emp.name}')" title="Натисніть щоб змінити або видалити">${emp.name}</td>
-                ${Array.from({length: daysInMonth}, (_, i) => {
+                <td style="font-weight:700;">${emp.name}</td>
+                ${Array.from({length:daysInMonth}, (_, i) => {
                     const day = i + 1;
                     const isWeekend = (new Date(year, month, day).getDay() % 6 === 0);
                     
                     let content = '';
-                    // Прибираємо старі текстові символи і замінюємо на CSS графіку
-                    if(emp.shifts.includes(day)) content = '<span class="shift">X</span>';
-                    else if(emp.shiftsFirst.includes(day)) content = '<span class="shift shift-first"></span>'; // CSS checkmark
-                    else if(emp.shiftsSecond.includes(day)) content = '<span class="shift shift-second"></span>'; // Mirrored CSS checkmark
+                    if(emp.shifts.includes(day)) content = '<span class="shift-icon shift-full"></span>';
+                    else if(emp.shiftsFirst.includes(day)) content = '<span class="shift-icon shift-first"></span>';
+                    else if(emp.shiftsSecond.includes(day)) content = '<span class="shift-icon shift-second"></span>';
                     
                     if(emp.unavail.includes(day)) content += '<span class="unavail-marker">•</span>';
                     
-                    return `<td class="${isWeekend?'weekend':''}" onclick="handleCellClick(${emp.id}, ${day})">${content}</td>`;
+                    return `<td class="${isWeekend?'weekend':''}" onclick="markUnavail(${emp.id}, ${day})">${content}</td>`;
                 }).join('')}
             </tr>
         `).join('');
     }
 
-    window.addEmployee = function() {
-        const nameInput = document.getElementById('newEmpName');
-        const name = nameInput.value.trim();
-        if(name) {
-            employees.push({ id: Date.now(), name: name, shifts: [], shiftsFirst: [], shiftsSecond: [], unavail: [] });
-            nameInput.value = '';
+    window.markUnavail = function(empId, day) {
+        const emp = employees.find(e => e.id === empId);
+        if(emp) {
+            if(emp.unavail.includes(day)) emp.unavail = emp.unavail.filter(d => d !== day);
+            else emp.unavail.push(day);
+            render(); 
             saveData(); 
         }
-    }
-
-    window.editEmployee = function(id, currentName) {
-        let newName = prompt(`Редагування: ${currentName}\n\nВведіть нове ім'я або залиште поле ПУСТИМ, щоб ВИДАЛИТИ працівника:`, currentName);
-        if (newName === null) return; 
-
-        if (newName.trim() === "") {
-            if (confirm(`Ви впевнені, що хочете видалити працівника "${currentName}" з цього місяця?`)) {
-                employees = employees.filter(e => e.id !== id);
-                saveData();
-            }
-        } else if (newName !== currentName) {
-            const emp = employees.find(e => e.id === id);
-            if(emp) {
-                emp.name = newName.trim();
-                saveData();
-            }
-        }
-    }
-
-    window.handleCellClick = function(empId, day) {
-        const emp = employees.find(e => e.id === empId);
-        if(!emp) return;
-
-        const hasShift = emp.shifts.includes(day) || emp.shiftsFirst.includes(day) || emp.shiftsSecond.includes(day);
-
-        if (!hasShift) {
-            emp.shifts.push(day);
-            render();
-            saveData();
-        } else {
-            window.currentEditEmpId = empId;
-            window.currentEditDay = day;
-            document.getElementById('shiftModal').style.display = 'flex';
-        }
-    }
-
-    window.setShiftType = function(type) {
-        const emp = employees.find(e => e.id === window.currentEditEmpId);
-        const day = window.currentEditDay;
-        
-        if(!emp) return;
-
-        emp.shifts = emp.shifts.filter(d => d !== day);
-        emp.shiftsFirst = emp.shiftsFirst.filter(d => d !== day);
-        emp.shiftsSecond = emp.shiftsSecond.filter(d => d !== day);
-
-        if (type === 'full') emp.shifts.push(day);
-        if (type === 'first') emp.shiftsFirst.push(day);
-        if (type === 'second') emp.shiftsSecond.push(day);
-
-        closeModal();
-        render();
-        saveData();
-    }
-
-    window.closeModal = function() {
-        document.getElementById('shiftModal').style.display = 'none';
-        window.currentEditEmpId = null;
-        window.currentEditDay = null;
     }
 
     window.changeMonth = function(dir) {
         currentDate.setMonth(currentDate.getMonth() + dir);
         loadData();
-    }
-
-    window.shareScreenshot = async function() {
-        const btn = document.querySelector('.viber-btn');
-        btn.innerText = "⏳ Створюю...";
-        try {
-            const captureArea = document.getElementById('capture-area');
-            const originalBg = captureArea.style.backgroundColor;
-            captureArea.style.backgroundColor = "#ffffff"; 
-            
-            const canvas = await html2canvas(captureArea, { scale: 2 });
-            captureArea.style.backgroundColor = originalBg; 
-            
-            canvas.toBlob(async (blob) => {
-                const file = new File([blob], `Графік_${monthNames[currentDate.getMonth()]}.png`, { type: "image/png" });
-                if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                    await navigator.share({ files: [file], title: 'Графік KABINET' });
-                } else {
-                    const link = document.createElement('a');
-                    link.download = `Графік_${monthNames[currentDate.getMonth()]}.png`;
-                    link.href = canvas.toDataURL();
-                    link.click();
-                }
-                btn.innerText = "📷 Скріншот";
-            });
-        } catch (e) {
-            console.error(e);
-            alert("Помилка створення скріншоту.");
-            btn.innerText = "📷 Скріншот";
-        }
     }
 
     loadData();

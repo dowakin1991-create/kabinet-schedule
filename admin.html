@@ -19,6 +19,7 @@
             --bg-body: #f4f7f6; --bg-card: #ffffff; --text-main: #2c3e50;
             --primary: #1F6B6B; --weekend: #e9ecef; --border: #c4cdd5; 
             --row-1: #fdf2f2; --row-2: #f0f7f4; --row-3: #fef6e3; --row-4: #f3f0f7; --row-5: #eef5fb;
+            --today-border: #e74c3c; /* Червоний колір для виділення сьогодні */
         }
 
         @media (prefers-color-scheme: dark) {
@@ -26,6 +27,7 @@
                 --bg-body: #121212; --bg-card: #1e1e1e; --text-main: #e0e0e0;
                 --primary: #2ebfbf; --weekend: #2a2a2a; --border: #444444;
                 --row-1: #3a2a2a; --row-2: #2a3a32; --row-3: #3a352a; --row-4: #2e2a3a; --row-5: #2a333a;
+                --today-border: #ff6b6b;
             }
         }
 
@@ -51,7 +53,7 @@
         .table-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; background: var(--bg-card); border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 900px; background: var(--bg-card); }
         
-        th, td { padding: 4px; height: 44px; text-align: center; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); box-sizing: border-box; }
+        th, td { padding: 4px; height: 50px; text-align: center; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); box-sizing: border-box; }
         th { background: #34495e; color: white; position: sticky; top: 0; z-index: 4; font-size: 0.9rem; }
         
         th:first-child, td:first-child { 
@@ -59,56 +61,44 @@
         }
         th:first-child { background: #34495e; z-index: 6; cursor: default; }
         
+        /* Виділення СЬОГОДНІШНЬОГО дня */
+        .current-day-th {
+            border-top: 3px solid var(--today-border) !important;
+            border-left: 3px solid var(--today-border) !important;
+            border-right: 3px solid var(--today-border) !important;
+            background-color: #2c3e50 !important;
+        }
+        .current-day-td {
+            border-left: 3px solid var(--today-border) !important;
+            border-right: 3px solid var(--today-border) !important;
+            background-color: rgba(231, 76, 60, 0.08) !important;
+        }
+        .current-day-td-bottom {
+            border-bottom: 3px solid var(--today-border) !important;
+        }
+
         .weekend { background-color: var(--weekend) !important; }
         .unavail-marker { color: #ff4d4d; font-weight: 900; font-size: 1.5rem; line-height: 0; vertical-align: -2px; display: inline-block; }
         
-        tr:nth-child(5n+1) td { background-color: var(--row-1); }
-        tr:nth-child(5n+2) td { background-color: var(--row-2); }
-        tr:nth-child(5n+3) td { background-color: var(--row-3); }
-        tr:nth-child(5n+4) td { background-color: var(--row-4); }
-        tr:nth-child(5n+5) td { background-color: var(--row-5); }
+        tr:nth-child(5n+1) td:not(.current-day-td) { background-color: var(--row-1); }
+        tr:nth-child(5n+2) td:not(.current-day-td) { background-color: var(--row-2); }
+        tr:nth-child(5n+3) td:not(.current-day-td) { background-color: var(--row-3); }
+        tr:nth-child(5n+4) td:not(.current-day-td) { background-color: var(--row-4); }
+        tr:nth-child(5n+5) td:not(.current-day-td) { background-color: var(--row-5); }
 
-        /* ВЕКТОРНІ ІКОНКИ ДЛЯ ЗМІН (Оновлені по твоєму ескізу) */
-        .shift-icon {
-            display: inline-block;
-            width: 18px; 
-            height: 18px;
-            background-color: var(--primary);
-            vertical-align: middle;
-            cursor: pointer;
-        }
-        /* Звичайний Х */
-        .shift-full {
-            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M4,4 L16,16 M16,4 L4,16' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain;
-            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M4,4 L16,16 M16,4 L4,16' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain;
-        }
-        /* Y - Перша половина */
-        .shift-first {
-            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M4,4 L10,10 M16,4 L5,18' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain;
-            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M4,4 L10,10 M16,4 L5,18' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain;
-        }
-        /* Лямбда - Друга половина */
-        .shift-second {
-            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M14,3 L5,18 M9.5,11 L16,17' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain;
-            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M14,3 L5,18 M9.5,11 L16,17' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain;
-        }
+        .duty-text { font-size: 0.55rem; color: #f1c40f; font-weight: bold; display: block; margin-top: 3px; letter-spacing: 0.5px; }
+
+        /* ВЕКТОРНІ ІКОНКИ ДЛЯ ЗМІН */
+        .shift-icon { display: inline-block; width: 18px; height: 18px; background-color: var(--primary); vertical-align: middle; cursor: pointer; }
+        .shift-full { -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M4,4 L16,16 M16,4 L4,16' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M4,4 L16,16 M16,4 L4,16' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain; }
+        .shift-first { -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M4,4 L10,10 M16,4 L5,18' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M4,4 L10,10 M16,4 L5,18' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain; }
+        .shift-second { -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M14,3 L5,18 M9.5,11 L16,17' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M14,3 L5,18 M9.5,11 L16,17' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain; }
 
         /* СПЛИВАЮЧЕ ВІКНО */
-        .modal-overlay {
-            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;
-            backdrop-filter: blur(5px);
-        }
-        .modal-content {
-            background: var(--bg-card); padding: 20px; border-radius: 15px; width: 280px;
-            display: flex; flex-direction: column; gap: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-        }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .modal-content { background: var(--bg-card); padding: 20px; border-radius: 15px; width: 280px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
         .modal-content h3 { margin: 0 0 10px 0; text-align: center; font-size: 1.1rem; }
-        .modal-btn {
-            padding: 12px; border-radius: 8px; border: 1px solid var(--border);
-            background: var(--bg-body); color: var(--text-main); font-weight: bold; cursor: pointer;
-            font-size: 1rem; display: flex; align-items: center; justify-content: center; gap: 10px;
-        }
+        .modal-btn { padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-body); color: var(--text-main); font-weight: bold; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .modal-btn:active { opacity: 0.7; }
         .modal-btn.danger { color: #e74c3c; border-color: #e74c3c; }
     </style>
@@ -171,12 +161,14 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    const todayDate = new Date(); // Реальна поточна дата
     let currentDate = new Date();
     currentDate.setDate(1); 
     const monthNames = ["Січень", "Лютий", "Березень", "Квітень", "Травень", "Червень", "Липень", "Серпень", "Вересень", "Жовтень", "Листопад", "Грудень"];
     const dayNames = ["Нд", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
     let employees = [];
     let unsubscribe = null;
+    let initialScrollDone = false; // Прапорець для автоскролу
 
     window.currentEditEmpId = null;
     window.currentEditDay = null;
@@ -185,18 +177,28 @@
         return `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
     }
 
+    // РОЗРАХУНОК ЦИКЛУ (Відштовхуючись від 22.05.2026 = Столи)
+    function getDutyName(targetYear, targetMonth, targetDay) {
+        const cycleNames = ["🧽 Столи", "💨 Витяжки", "🍟 Фритюр"];
+        const anchorDateUTC = Date.UTC(2026, 4, 22); // 4 = Травень (бо місяці від 0)
+        const targetDateUTC = Date.UTC(targetYear, targetMonth, targetDay);
+        
+        const diffDays = Math.floor((targetDateUTC - anchorDateUTC) / (1000 * 60 * 60 * 24));
+        let cycleIndex = diffDays % 3;
+        if (cycleIndex < 0) cycleIndex = (cycleIndex + 3) % 3; // виправлення для дат до 22.05.26
+        
+        return cycleNames[cycleIndex];
+    }
+
     function loadData() {
         if(unsubscribe) unsubscribe();
-        
         document.getElementById('month-label').innerText = `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
         
         unsubscribe = onSnapshot(doc(db, "schedules", getDocId()), (docSnap) => {
             if (docSnap.exists()) {
                 let data = docSnap.data().employees || [];
                 employees = data.map(emp => ({
-                    ...emp,
-                    shiftsFirst: emp.shiftsFirst || [],
-                    shiftsSecond: emp.shiftsSecond || []
+                    ...emp, shiftsFirst: emp.shiftsFirst || [], shiftsSecond: emp.shiftsSecond || []
                 }));
                 render();
             } else {
@@ -212,8 +214,7 @@
     }
 
     async function saveData() {
-        try { await setDoc(doc(db, "schedules", getDocId()), { employees }); } 
-        catch (e) { console.error(e); }
+        try { await setDoc(doc(db, "schedules", getDocId()), { employees }); } catch (e) { console.error(e); }
     }
 
     function render() {
@@ -228,31 +229,51 @@
         for(let i=1; i<=daysInMonth; i++) {
             const dayIndex = new Date(year, month, i).getDay();
             const isWeekend = (dayIndex === 0 || dayIndex === 6);
-            headHtml += `<th class="${isWeekend?'weekend':''}" style="line-height: 1.1;">
-                ${i}<br><span style="font-size: 0.65rem; font-weight: normal; opacity: 0.85;">${dayNames[dayIndex]}</span>
+            const isToday = (year === todayDate.getFullYear() && month === todayDate.getMonth() && i === todayDate.getDate());
+            const duty = getDutyName(year, month, i);
+            
+            headHtml += `<th class="${isWeekend?'weekend':''} ${isToday?'current-day-th':''}" style="line-height: 1.1; min-width: 50px;">
+                ${i}<br>
+                <span style="font-size: 0.65rem; font-weight: normal; opacity: 0.85;">${dayNames[dayIndex]}</span>
+                <span class="duty-text">${duty}</span>
             </th>`;
         }
         head.innerHTML = headHtml;
 
-        body.innerHTML = employees.map(emp => `
-            <tr>
+        body.innerHTML = employees.map((emp, index) => {
+            const isLastRow = (index === employees.length - 1);
+            return `<tr>
                 <td onclick="editEmployee(${emp.id}, '${emp.name}')" title="Натисніть щоб змінити або видалити">${emp.name}</td>
                 ${Array.from({length: daysInMonth}, (_, i) => {
                     const day = i + 1;
                     const isWeekend = (new Date(year, month, day).getDay() % 6 === 0);
+                    const isToday = (year === todayDate.getFullYear() && month === todayDate.getMonth() && day === todayDate.getDate());
                     
+                    let tdClass = isWeekend ? 'weekend' : '';
+                    if (isToday) tdClass += ' current-day-td';
+                    if (isToday && isLastRow) tdClass += ' current-day-td-bottom';
+
                     let content = '';
-                    // Оновлена логіка: красиві іконки
                     if(emp.shifts.includes(day)) content = '<span class="shift-icon shift-full"></span>';
                     else if(emp.shiftsFirst.includes(day)) content = '<span class="shift-icon shift-first"></span>';
                     else if(emp.shiftsSecond.includes(day)) content = '<span class="shift-icon shift-second"></span>';
-                    
                     if(emp.unavail.includes(day)) content += '<span class="unavail-marker">•</span>';
                     
-                    return `<td class="${isWeekend?'weekend':''}" onclick="handleCellClick(${emp.id}, ${day})">${content}</td>`;
+                    return `<td class="${tdClass}" onclick="handleCellClick(${emp.id}, ${day})">${content}</td>`;
                 }).join('')}
-            </tr>
-        `).join('');
+            </tr>`;
+        }).join('');
+
+        // АВТОСКРОЛ ДО СЬОГОДНІШНЬОГО ДНЯ (тільки один раз при відкритті)
+        if (!initialScrollDone) {
+            setTimeout(() => {
+                const todayTh = document.querySelector('.current-day-th');
+                if (todayTh) {
+                    todayTh.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                }
+                initialScrollDone = true;
+            }, 300);
+        }
     }
 
     window.addEmployee = function() {
@@ -268,7 +289,6 @@
     window.editEmployee = function(id, currentName) {
         let newName = prompt(`Редагування: ${currentName}\n\nВведіть нове ім'я або залиште поле ПУСТИМ, щоб ВИДАЛИТИ працівника:`, currentName);
         if (newName === null) return; 
-
         if (newName.trim() === "") {
             if (confirm(`Ви впевнені, що хочете видалити працівника "${currentName}" з цього місяця?`)) {
                 employees = employees.filter(e => e.id !== id);
@@ -276,26 +296,18 @@
             }
         } else if (newName !== currentName) {
             const emp = employees.find(e => e.id === id);
-            if(emp) {
-                emp.name = newName.trim();
-                saveData();
-            }
+            if(emp) { emp.name = newName.trim(); saveData(); }
         }
     }
 
     window.handleCellClick = function(empId, day) {
         const emp = employees.find(e => e.id === empId);
         if(!emp) return;
-
         const hasShift = emp.shifts.includes(day) || emp.shiftsFirst.includes(day) || emp.shiftsSecond.includes(day);
-
         if (!hasShift) {
-            emp.shifts.push(day);
-            render();
-            saveData();
+            emp.shifts.push(day); render(); saveData();
         } else {
-            window.currentEditEmpId = empId;
-            window.currentEditDay = day;
+            window.currentEditEmpId = empId; window.currentEditDay = day;
             document.getElementById('shiftModal').style.display = 'flex';
         }
     }
@@ -303,7 +315,6 @@
     window.setShiftType = function(type) {
         const emp = employees.find(e => e.id === window.currentEditEmpId);
         const day = window.currentEditDay;
-        
         if(!emp) return;
 
         emp.shifts = emp.shifts.filter(d => d !== day);
@@ -314,15 +325,12 @@
         if (type === 'first') emp.shiftsFirst.push(day);
         if (type === 'second') emp.shiftsSecond.push(day);
 
-        closeModal();
-        render();
-        saveData();
+        closeModal(); render(); saveData();
     }
 
     window.closeModal = function() {
         document.getElementById('shiftModal').style.display = 'none';
-        window.currentEditEmpId = null;
-        window.currentEditDay = null;
+        window.currentEditEmpId = null; window.currentEditDay = null;
     }
 
     window.changeMonth = function(dir) {
@@ -337,10 +345,8 @@
             const captureArea = document.getElementById('capture-area');
             const originalBg = captureArea.style.backgroundColor;
             captureArea.style.backgroundColor = "#ffffff"; 
-            
             const canvas = await html2canvas(captureArea, { scale: 2 });
             captureArea.style.backgroundColor = originalBg; 
-            
             canvas.toBlob(async (blob) => {
                 const file = new File([blob], `Графік_${monthNames[currentDate.getMonth()]}.png`, { type: "image/png" });
                 if (navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -348,16 +354,11 @@
                 } else {
                     const link = document.createElement('a');
                     link.download = `Графік_${monthNames[currentDate.getMonth()]}.png`;
-                    link.href = canvas.toDataURL();
-                    link.click();
+                    link.href = canvas.toDataURL(); link.click();
                 }
                 btn.innerText = "📷 Скріншот";
             });
-        } catch (e) {
-            console.error(e);
-            alert("Помилка створення скріншоту.");
-            btn.innerText = "📷 Скріншот";
-        }
+        } catch (e) { console.error(e); alert("Помилка."); btn.innerText = "📷 Скріншот"; }
     }
 
     loadData();

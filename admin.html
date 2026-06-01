@@ -19,6 +19,11 @@
             --primary: #1F6B6B; --weekend: #e9ecef; --border: #c4cdd5; 
             --row-1: #fdf2f2; --row-2: #f0f7f4; --row-3: #fef6e3; --row-4: #f3f0f7; --row-5: #eef5fb;
             --today-border: #e74c3c;
+            /* Насичені кольори виділення */
+            --highlight-green-solid: #2ecc71; /* помітний насичений зелений */
+            --highlight-green-bg: rgba(46, 204, 113, 0.25);
+            --highlight-blue-solid: #3498db; /* помітний насичений синій */
+            --highlight-blue-bg: rgba(52, 152, 219, 0.2);
         }
 
         @media (prefers-color-scheme: dark) {
@@ -27,6 +32,8 @@
                 --primary: #2ebfbf; --weekend: #2a2a2a; --border: #444444;
                 --row-1: #3a2a2a; --row-2: #2a3a32; --row-3: #3a352a; --row-4: #2e2a3a; --row-5: #2a333a;
                 --today-border: #ff6b6b;
+                --highlight-green-bg: rgba(46, 204, 113, 0.35); /* вища прозорість для кращої видимості */
+                --highlight-blue-bg: rgba(52, 152, 219, 0.3);
             }
         }
 
@@ -65,10 +72,13 @@
         .current-day-td-bottom { border-bottom: 3px solid var(--today-border) !important; }
 
         /* ІНТЕРАКТИВНЕ ВИДІЛЕННЯ (Дні та Рядки) */
-        .highlight-col { background-color: rgba(46, 204, 113, 0.2) !important; }
-        .highlight-name { background-color: rgba(46, 204, 113, 0.25) !important; border-left: 4px solid #27ae60 !important; }
-        .highlight-row td { background-color: rgba(52, 152, 219, 0.15) !important; }
-        .highlight-row td:first-child { border-left: 4px solid #2980b9 !important; }
+        .highlight-col { background-color: var(--highlight-green-bg) !important; border-left: 2px solid var(--highlight-green-solid) !important; border-right: 2px solid var(--highlight-green-solid) !important;}
+        th.highlight-col { border-top: 2px solid var(--highlight-green-solid) !important;}
+        
+        .highlight-name { background-color: var(--highlight-green-bg) !important; border-left: 4px solid var(--highlight-green-solid) !important; }
+        
+        .highlight-row td { background-color: var(--highlight-blue-bg) !important;}
+        .highlight-row td:first-child { border-left: 4px solid #2980b9 !important; border-left: 4px solid var(--highlight-blue-solid) !important; }
 
         .weekend { background-color: var(--weekend) !important; }
         .unavail-marker { color: #ff4d4d; font-weight: 900; font-size: 1.5rem; line-height: 0; vertical-align: -2px; display: inline-block; }
@@ -95,7 +105,7 @@
         .modal-btn:active { opacity: 0.7; }
         .modal-btn.danger { color: #e74c3c; border-color: #e74c3c; }
         
-        .edit-btn { background: #f39c12; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; margin-left: 5px; cursor: pointer; border: none; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .edit-btn { background: rgba(243, 156, 18, 0.7); color: white; padding: 2px 5px; border-radius: 4px; font-size: 0.7rem; margin-left: 5px; cursor: pointer; border: none; }
     </style>
 </head>
 <body>
@@ -164,7 +174,6 @@
     let unsubscribe = null;
     let initialScrollDone = false;
 
-    // Змінні для виділення стовпців та рядків
     let activeColDay = null;
     let activeRowEmpId = null;
 
@@ -227,7 +236,6 @@
             const isToday = (year === todayDate.getFullYear() && month === todayDate.getMonth() && i === todayDate.getDate());
             const duty = getDutyName(year, month, i);
             
-            // Логіка підсвічування обраного стовпця (зеленим)
             let thClass = isWeekend ? 'weekend' : '';
             if (isToday) thClass += ' current-day-th';
             if (activeColDay === i) thClass += ' highlight-col';
@@ -273,7 +281,6 @@
             </tr>`;
         }).join('');
 
-        // Автоскрол тільки якщо це поточний місяць
         if (!initialScrollDone && year === todayDate.getFullYear() && month === todayDate.getMonth()) {
             setTimeout(() => {
                 const todayTh = document.querySelector('.current-day-th');
@@ -283,7 +290,6 @@
         }
     }
 
-    // --- ФУНКЦІЇ ВИДІЛЕННЯ ---
     window.toggleColHighlight = function(day) {
         activeColDay = (activeColDay === day) ? null : day;
         render();
@@ -304,9 +310,8 @@
         }
     }
 
-    // Відредаговано: тепер функція приймає event, щоб клік по олівцю не виділяв рядок
     window.editEmployee = function(event, id, currentName) {
-        event.stopPropagation(); // Зупиняє "пробивання" кліку до рядка
+        event.stopPropagation(); 
         let newName = prompt(`Редагування: ${currentName}\n\nВведіть нове ім'я або залиште поле ПУСТИМ, щоб ВИДАЛИТИ працівника:`, currentName);
         if (newName === null) return; 
         if (newName.trim() === "") {
@@ -355,19 +360,16 @@
 
     window.changeMonth = function(dir) {
         currentDate.setMonth(currentDate.getMonth() + dir);
-        
-        // Скидаємо виділення при зміні місяця
         activeColDay = null; 
         activeRowEmpId = null;
         
-        // Виправляємо баг з прокруткою: якщо це не поточний місяць, повертаємо таблицю на 1-ше число
         const isCurrentMonth = (currentDate.getFullYear() === todayDate.getFullYear() && currentDate.getMonth() === todayDate.getMonth());
         if (!isCurrentMonth) {
             const tableWrapper = document.querySelector('.table-wrapper');
             if (tableWrapper) tableWrapper.scrollLeft = 0;
             initialScrollDone = true; 
         } else {
-            initialScrollDone = false; // Дозволяємо знову прокрутити до сьогодні, якщо повернулися
+            initialScrollDone = false; 
         }
         
         loadData();

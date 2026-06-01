@@ -12,14 +12,13 @@
     <meta name="apple-mobile-web-app-title" content="KABINET ШЕФ">
 
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;900&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <style>
         :root {
             --bg-body: #f4f7f6; --bg-card: #ffffff; --text-main: #2c3e50;
             --primary: #1F6B6B; --weekend: #e9ecef; --border: #c4cdd5; 
             --row-1: #fdf2f2; --row-2: #f0f7f4; --row-3: #fef6e3; --row-4: #f3f0f7; --row-5: #eef5fb;
-            --today-border: #e74c3c; /* Червоний колір для виділення сьогодні */
+            --today-border: #e74c3c;
         }
 
         @media (prefers-color-scheme: dark) {
@@ -48,12 +47,11 @@
         input { flex-grow: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-body); color: var(--text-main); font-family: inherit; font-size: 0.95rem; -webkit-user-select: auto; user-select: auto; }
         button { padding: 10px 15px; border-radius: 8px; font-weight: 700; cursor: pointer; border: none; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 5px;}
         .add-btn { background: #3498db; color: white; }
-        .viber-btn { background: #7360f2; color: white; }
         
         .table-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; background: var(--bg-card); border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 900px; background: var(--bg-card); }
         
-        th, td { padding: 4px; height: 50px; text-align: center; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); box-sizing: border-box; }
+        th, td { padding: 4px; height: 50px; text-align: center; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); box-sizing: border-box; transition: background-color 0.2s; }
         th { background: #34495e; color: white; position: sticky; top: 0; z-index: 4; font-size: 0.9rem; }
         
         th:first-child, td:first-child { 
@@ -62,20 +60,15 @@
         th:first-child { background: #34495e; z-index: 6; cursor: default; }
         
         /* Виділення СЬОГОДНІШНЬОГО дня */
-        .current-day-th {
-            border-top: 3px solid var(--today-border) !important;
-            border-left: 3px solid var(--today-border) !important;
-            border-right: 3px solid var(--today-border) !important;
-            background-color: #2c3e50 !important;
-        }
-        .current-day-td {
-            border-left: 3px solid var(--today-border) !important;
-            border-right: 3px solid var(--today-border) !important;
-            background-color: rgba(231, 76, 60, 0.08) !important;
-        }
-        .current-day-td-bottom {
-            border-bottom: 3px solid var(--today-border) !important;
-        }
+        .current-day-th { border-top: 3px solid var(--today-border) !important; border-left: 3px solid var(--today-border) !important; border-right: 3px solid var(--today-border) !important; background-color: #2c3e50 !important; }
+        .current-day-td { border-left: 3px solid var(--today-border) !important; border-right: 3px solid var(--today-border) !important; background-color: rgba(231, 76, 60, 0.08) !important; }
+        .current-day-td-bottom { border-bottom: 3px solid var(--today-border) !important; }
+
+        /* ІНТЕРАКТИВНЕ ВИДІЛЕННЯ (Дні та Рядки) */
+        .highlight-col { background-color: rgba(46, 204, 113, 0.2) !important; }
+        .highlight-name { background-color: rgba(46, 204, 113, 0.25) !important; border-left: 4px solid #27ae60 !important; }
+        .highlight-row td { background-color: rgba(52, 152, 219, 0.15) !important; }
+        .highlight-row td:first-child { border-left: 4px solid #2980b9 !important; }
 
         .weekend { background-color: var(--weekend) !important; }
         .unavail-marker { color: #ff4d4d; font-weight: 900; font-size: 1.5rem; line-height: 0; vertical-align: -2px; display: inline-block; }
@@ -101,6 +94,8 @@
         .modal-btn { padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-body); color: var(--text-main); font-weight: bold; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .modal-btn:active { opacity: 0.7; }
         .modal-btn.danger { color: #e74c3c; border-color: #e74c3c; }
+        
+        .edit-btn { background: #f39c12; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; margin-left: 5px; cursor: pointer; border: none; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
     </style>
 </head>
 <body>
@@ -123,10 +118,9 @@
     <div class="admin-controls">
         <input type="text" id="newEmpName" placeholder="Введіть ім'я">
         <button class="add-btn" onclick="addEmployee()">+ Додати</button>
-        <button class="viber-btn" onclick="shareScreenshot()">📷 Скріншот</button>
     </div>
 
-    <div class="table-wrapper" id="capture-area">
+    <div class="table-wrapper">
         <table id="admin-table">
             <thead><tr id="h-row"></tr></thead>
             <tbody id="b-row"></tbody>
@@ -161,14 +155,18 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    const todayDate = new Date(); // Реальна поточна дата
+    const todayDate = new Date(); 
     let currentDate = new Date();
     currentDate.setDate(1); 
     const monthNames = ["Січень", "Лютий", "Березень", "Квітень", "Травень", "Червень", "Липень", "Серпень", "Вересень", "Жовтень", "Листопад", "Грудень"];
     const dayNames = ["Нд", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
     let employees = [];
     let unsubscribe = null;
-    let initialScrollDone = false; // Прапорець для автоскролу
+    let initialScrollDone = false;
+
+    // Змінні для виділення стовпців та рядків
+    let activeColDay = null;
+    let activeRowEmpId = null;
 
     window.currentEditEmpId = null;
     window.currentEditDay = null;
@@ -177,16 +175,13 @@
         return `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
     }
 
-    // РОЗРАХУНОК ЦИКЛУ (Відштовхуючись від 22.05.2026 = Столи)
     function getDutyName(targetYear, targetMonth, targetDay) {
         const cycleNames = ["🧽 Столи", "💨 Витяжки", "🍟 Фритюр"];
-        const anchorDateUTC = Date.UTC(2026, 4, 22); // 4 = Травень (бо місяці від 0)
+        const anchorDateUTC = Date.UTC(2026, 4, 22);
         const targetDateUTC = Date.UTC(targetYear, targetMonth, targetDay);
-        
         const diffDays = Math.floor((targetDateUTC - anchorDateUTC) / (1000 * 60 * 60 * 24));
         let cycleIndex = diffDays % 3;
-        if (cycleIndex < 0) cycleIndex = (cycleIndex + 3) % 3; // виправлення для дат до 22.05.26
-        
+        if (cycleIndex < 0) cycleIndex = (cycleIndex + 3) % 3;
         return cycleNames[cycleIndex];
     }
 
@@ -214,14 +209,14 @@
     }
 
     async function saveData() {
-        try { await setDoc(doc(db, "schedules", getDocId()), { employees }); } catch (e) { console.error(e); }
+        try { await setDoc(doc(db, "schedules", getDocId()), { employees }); } catch(e) { console.error(e); }
     }
 
     function render() {
         const year = currentDate.getFullYear();
         const month = currentDate.getMonth();
         const daysInMonth = new Date(year, month + 1, 0).getDate();
-        
+
         const head = document.getElementById('h-row');
         const body = document.getElementById('b-row');
         
@@ -232,7 +227,12 @@
             const isToday = (year === todayDate.getFullYear() && month === todayDate.getMonth() && i === todayDate.getDate());
             const duty = getDutyName(year, month, i);
             
-            headHtml += `<th class="${isWeekend?'weekend':''} ${isToday?'current-day-th':''}" style="line-height: 1.1; min-width: 50px;">
+            // Логіка підсвічування обраного стовпця (зеленим)
+            let thClass = isWeekend ? 'weekend' : '';
+            if (isToday) thClass += ' current-day-th';
+            if (activeColDay === i) thClass += ' highlight-col';
+            
+            headHtml += `<th class="${thClass}" style="line-height: 1.1; min-width: 50px; cursor: pointer;" onclick="toggleColHighlight(${i})">
                 ${i}<br>
                 <span style="font-size: 0.65rem; font-weight: normal; opacity: 0.85;">${dayNames[dayIndex]}</span>
                 <span class="duty-text">${duty}</span>
@@ -242,9 +242,17 @@
 
         body.innerHTML = employees.map((emp, index) => {
             const isLastRow = (index === employees.length - 1);
-            return `<tr>
-                <td onclick="editEmployee(${emp.id}, '${emp.name}')" title="Натисніть щоб змінити або видалити">${emp.name}</td>
-                ${Array.from({length: daysInMonth}, (_, i) => {
+            const isRowHighlighted = (activeRowEmpId === emp.id);
+            const worksOnActiveDay = activeColDay && (emp.shifts.includes(activeColDay) || emp.shiftsFirst.includes(activeColDay) || emp.shiftsSecond.includes(activeColDay));
+            
+            return `<tr class="${isRowHighlighted ? 'highlight-row' : ''}">
+                <td onclick="toggleRowHighlight(${emp.id})" class="${worksOnActiveDay ? 'highlight-name' : ''}">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>${emp.name}</span>
+                        <button class="edit-btn" onclick="editEmployee(event, ${emp.id}, '${emp.name}')">✏️</button>
+                    </div>
+                </td>
+                ${Array.from({length:daysInMonth}, (_, i) => {
                     const day = i + 1;
                     const isWeekend = (new Date(year, month, day).getDay() % 6 === 0);
                     const isToday = (year === todayDate.getFullYear() && month === todayDate.getMonth() && day === todayDate.getDate());
@@ -252,6 +260,7 @@
                     let tdClass = isWeekend ? 'weekend' : '';
                     if (isToday) tdClass += ' current-day-td';
                     if (isToday && isLastRow) tdClass += ' current-day-td-bottom';
+                    if (activeColDay === day) tdClass += ' highlight-col';
 
                     let content = '';
                     if(emp.shifts.includes(day)) content = '<span class="shift-icon shift-full"></span>';
@@ -264,16 +273,25 @@
             </tr>`;
         }).join('');
 
-        // АВТОСКРОЛ ДО СЬОГОДНІШНЬОГО ДНЯ (тільки один раз при відкритті)
-        if (!initialScrollDone) {
+        // Автоскрол тільки якщо це поточний місяць
+        if (!initialScrollDone && year === todayDate.getFullYear() && month === todayDate.getMonth()) {
             setTimeout(() => {
                 const todayTh = document.querySelector('.current-day-th');
-                if (todayTh) {
-                    todayTh.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-                }
+                if (todayTh) todayTh.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
                 initialScrollDone = true;
             }, 300);
         }
+    }
+
+    // --- ФУНКЦІЇ ВИДІЛЕННЯ ---
+    window.toggleColHighlight = function(day) {
+        activeColDay = (activeColDay === day) ? null : day;
+        render();
+    }
+
+    window.toggleRowHighlight = function(empId) {
+        activeRowEmpId = (activeRowEmpId === empId) ? null : empId;
+        render();
     }
 
     window.addEmployee = function() {
@@ -286,7 +304,9 @@
         }
     }
 
-    window.editEmployee = function(id, currentName) {
+    // Відредаговано: тепер функція приймає event, щоб клік по олівцю не виділяв рядок
+    window.editEmployee = function(event, id, currentName) {
+        event.stopPropagation(); // Зупиняє "пробивання" кліку до рядка
         let newName = prompt(`Редагування: ${currentName}\n\nВведіть нове ім'я або залиште поле ПУСТИМ, щоб ВИДАЛИТИ працівника:`, currentName);
         if (newName === null) return; 
         if (newName.trim() === "") {
@@ -335,30 +355,22 @@
 
     window.changeMonth = function(dir) {
         currentDate.setMonth(currentDate.getMonth() + dir);
+        
+        // Скидаємо виділення при зміні місяця
+        activeColDay = null; 
+        activeRowEmpId = null;
+        
+        // Виправляємо баг з прокруткою: якщо це не поточний місяць, повертаємо таблицю на 1-ше число
+        const isCurrentMonth = (currentDate.getFullYear() === todayDate.getFullYear() && currentDate.getMonth() === todayDate.getMonth());
+        if (!isCurrentMonth) {
+            const tableWrapper = document.querySelector('.table-wrapper');
+            if (tableWrapper) tableWrapper.scrollLeft = 0;
+            initialScrollDone = true; 
+        } else {
+            initialScrollDone = false; // Дозволяємо знову прокрутити до сьогодні, якщо повернулися
+        }
+        
         loadData();
-    }
-
-    window.shareScreenshot = async function() {
-        const btn = document.querySelector('.viber-btn');
-        btn.innerText = "⏳ Створюю...";
-        try {
-            const captureArea = document.getElementById('capture-area');
-            const originalBg = captureArea.style.backgroundColor;
-            captureArea.style.backgroundColor = "#ffffff"; 
-            const canvas = await html2canvas(captureArea, { scale: 2 });
-            captureArea.style.backgroundColor = originalBg; 
-            canvas.toBlob(async (blob) => {
-                const file = new File([blob], `Графік_${monthNames[currentDate.getMonth()]}.png`, { type: "image/png" });
-                if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                    await navigator.share({ files: [file], title: 'Графік KABINET' });
-                } else {
-                    const link = document.createElement('a');
-                    link.download = `Графік_${monthNames[currentDate.getMonth()]}.png`;
-                    link.href = canvas.toDataURL(); link.click();
-                }
-                btn.innerText = "📷 Скріншот";
-            });
-        } catch (e) { console.error(e); alert("Помилка."); btn.innerText = "📷 Скріншот"; }
     }
 
     loadData();

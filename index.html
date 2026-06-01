@@ -2,8 +2,14 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>KABINET - Графік</title>
+    
+    <link rel="icon" type="image/png" href="IMG_9802.png">
+    <link rel="apple-touch-icon" href="IMG_9802.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="KABINET">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -22,7 +28,8 @@
             }
         }
 
-        body { font-family: 'Montserrat', sans-serif; background-color: var(--bg-body); color: var(--text-main); margin: 0; padding: 10px; transition: background-color 0.3s ease; }
+        /* Забороняємо виділення тексту для більшої схожості з додатком */
+        body { font-family: 'Montserrat', sans-serif; background-color: var(--bg-body); color: var(--text-main); margin: 0; padding: 10px; transition: background-color 0.3s ease; -webkit-user-select: none; user-select: none; }
         .container { max-width: 1200px; margin: 0 auto; }
         
         header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 15px; background: var(--bg-card); padding: 12px 15px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 15px; border: 1px solid var(--border); }
@@ -33,32 +40,27 @@
         .table-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; background: var(--bg-card); border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 800px; background: var(--bg-card); }
         
-        th, td { padding: 4px; height: 50px; text-align: center; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); box-sizing: border-box; }
+        th, td { padding: 4px; height: 50px; text-align: center; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); box-sizing: border-box; transition: background-color 0.2s; }
         th { border-top: 1px solid var(--border); background: var(--primary); color: white; font-weight: 500; font-size: 0.9rem; }
         
         th:first-child, td:first-child { 
             position: sticky; left: 0; z-index: 2; box-shadow: 2px 0 5px rgba(0,0,0,0.05); 
             text-align: left; padding-left: 10px; border-left: 1px solid var(--border); 
-            min-width: 100px; max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
+            min-width: 100px; max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer;
         }
-        th:first-child { z-index: 3; background: var(--primary); }
+        th:first-child { z-index: 3; background: var(--primary); cursor: default; }
 
         /* Виділення СЬОГОДНІШНЬОГО дня */
-        .current-day-th {
-            border-top: 3px solid var(--today-border) !important;
-            border-left: 3px solid var(--today-border) !important;
-            border-right: 3px solid var(--today-border) !important;
-            background-color: #1a5c5c !important; /* Трішки темніший за основний */
-        }
-        .current-day-td {
-            border-left: 3px solid var(--today-border) !important;
-            border-right: 3px solid var(--today-border) !important;
-            background-color: rgba(231, 76, 60, 0.08) !important;
-        }
-        .current-day-td-bottom {
-            border-bottom: 3px solid var(--today-border) !important;
-        }
+        .current-day-th { border-top: 3px solid var(--today-border) !important; border-left: 3px solid var(--today-border) !important; border-right: 3px solid var(--today-border) !important; background-color: #1a5c5c !important; }
+        .current-day-td { border-left: 3px solid var(--today-border) !important; border-right: 3px solid var(--today-border) !important; background-color: rgba(231, 76, 60, 0.08) !important; }
+        .current-day-td-bottom { border-bottom: 3px solid var(--today-border) !important; }
         
+        /* ІНТЕРАКТИВНЕ ВИДІЛЕННЯ (Дні та Рядки) */
+        .highlight-col { background-color: rgba(46, 204, 113, 0.2) !important; }
+        .highlight-name { background-color: rgba(46, 204, 113, 0.25) !important; border-left: 4px solid #27ae60 !important; }
+        .highlight-row td { background-color: rgba(52, 152, 219, 0.15) !important; }
+        .highlight-row td:first-child { border-left: 4px solid #2980b9 !important; }
+
         .weekend { background-color: var(--weekend) !important; }
         .unavailable { color: #ff4d4d; font-weight: 900; font-size: 1.5rem; line-height: 0; cursor: pointer; vertical-align: bottom; }
         
@@ -134,6 +136,10 @@
     let unsubscribe = null;
     let initialScrollDone = false;
 
+    // Змінні для виділення
+    let activeColDay = null;
+    let activeRowEmpId = null;
+
     function getDocId() {
         return `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
     }
@@ -142,11 +148,9 @@
         const cycleNames = ["🧽 Столи", "💨 Витяжки", "🍟 Фритюр"];
         const anchorDateUTC = Date.UTC(2026, 4, 22);
         const targetDateUTC = Date.UTC(targetYear, targetMonth, targetDay);
-        
         const diffDays = Math.floor((targetDateUTC - anchorDateUTC) / (1000 * 60 * 60 * 24));
         let cycleIndex = diffDays % 3;
         if (cycleIndex < 0) cycleIndex = (cycleIndex + 3) % 3;
-        
         return cycleNames[cycleIndex];
     }
 
@@ -192,7 +196,11 @@
             const isToday = (year === todayDate.getFullYear() && month === todayDate.getMonth() && i === todayDate.getDate());
             const duty = getDutyName(year, month, i);
             
-            headHtml += `<th class="${isWeekend?'weekend':''} ${isToday?'current-day-th':''}" style="line-height: 1.1; min-width: 50px;">
+            let thClass = isWeekend ? 'weekend' : '';
+            if (isToday) thClass += ' current-day-th';
+            if (activeColDay === i) thClass += ' highlight-col';
+            
+            headHtml += `<th class="${thClass}" style="line-height: 1.1; min-width: 50px; cursor: pointer;" onclick="toggleColHighlight(${i})">
                 ${i}<br>
                 <span style="font-size: 0.65rem; font-weight: normal; opacity: 0.85;">${dayNames[dayIndex]}</span>
                 <span class="duty-text">${duty}</span>
@@ -202,8 +210,11 @@
 
         body.innerHTML = employees.map((emp, index) => {
             const isLastRow = (index === employees.length - 1);
-            return `<tr>
-                <td style="font-weight:700;">${emp.name}</td>
+            const isRowHighlighted = (activeRowEmpId === emp.id);
+            const worksOnActiveDay = activeColDay && (emp.shifts.includes(activeColDay) || emp.shiftsFirst.includes(activeColDay) || emp.shiftsSecond.includes(activeColDay));
+            
+            return `<tr class="${isRowHighlighted ? 'highlight-row' : ''}">
+                <td onclick="toggleRowHighlight(${emp.id})" class="${worksOnActiveDay ? 'highlight-name' : ''}">${emp.name}</td>
                 ${Array.from({length:daysInMonth}, (_, i) => {
                     const day = i + 1;
                     const isWeekend = (new Date(year, month, day).getDay() % 6 === 0);
@@ -212,6 +223,7 @@
                     let tdClass = isWeekend ? 'weekend' : '';
                     if (isToday) tdClass += ' current-day-td';
                     if (isToday && isLastRow) tdClass += ' current-day-td-bottom';
+                    if (activeColDay === day) tdClass += ' highlight-col';
 
                     let content = '';
                     if(emp.shifts.includes(day)) content = '<span class="shift-icon shift-full"></span>';
@@ -224,15 +236,24 @@
             </tr>`;
         }).join('');
 
-        if (!initialScrollDone) {
+        if (!initialScrollDone && year === todayDate.getFullYear() && month === todayDate.getMonth()) {
             setTimeout(() => {
                 const todayTh = document.querySelector('.current-day-th');
-                if (todayTh) {
-                    todayTh.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-                }
+                if (todayTh) todayTh.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
                 initialScrollDone = true;
             }, 300);
         }
+    }
+
+    // --- ФУНКЦІЇ ВИДІЛЕННЯ ---
+    window.toggleColHighlight = function(day) {
+        activeColDay = (activeColDay === day) ? null : day;
+        render();
+    }
+
+    window.toggleRowHighlight = function(empId) {
+        activeRowEmpId = (activeRowEmpId === empId) ? null : empId;
+        render();
     }
 
     window.markUnavail = function(empId, day) {
@@ -246,6 +267,18 @@
 
     window.changeMonth = function(dir) {
         currentDate.setMonth(currentDate.getMonth() + dir);
+        activeColDay = null; 
+        activeRowEmpId = null;
+        
+        const isCurrentMonth = (currentDate.getFullYear() === todayDate.getFullYear() && currentDate.getMonth() === todayDate.getMonth());
+        if (!isCurrentMonth) {
+            const tableWrapper = document.querySelector('.table-wrapper');
+            if (tableWrapper) tableWrapper.scrollLeft = 0;
+            initialScrollDone = true; 
+        } else {
+            initialScrollDone = false; 
+        }
+        
         loadData();
     }
 

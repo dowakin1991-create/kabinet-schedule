@@ -17,11 +17,15 @@
             --primary: #1F6B6B; --weekend: #e9ecef; --border: #c4cdd5;
             --row-1: #fdf2f2; --row-2: #f0f7f4; --row-3: #fef6e3; --row-4: #f3f0f7; --row-5: #eef5fb;
             --today-border: #e74c3c;
+            
             /* Насичені кольори виділення */
-            --highlight-green-solid: #2ecc71; /* помітний насичений зелений */
-            --highlight-green-bg: rgba(46, 204, 113, 0.25);
-            --highlight-blue-solid: #3498db; /* помітний насичений синій */
-            --highlight-blue-bg: rgba(52, 152, 219, 0.2);
+            --highlight-green-solid: #2ecc71; 
+            --highlight-green-bg: rgba(46, 204, 113, 0.3);
+            --highlight-green-sticky: #d5f5e3; 
+            
+            --highlight-blue-solid: #3498db; 
+            --highlight-blue-bg: rgba(52, 152, 219, 0.35); 
+            --highlight-blue-sticky: #d6eaf8;
         }
 
         @media (prefers-color-scheme: dark) {
@@ -30,8 +34,12 @@
                 --primary: #2ebfbf; --weekend: #2a2a2a; --border: #444444;
                 --row-1: #3a2a2a; --row-2: #2a3a32; --row-3: #3a352a; --row-4: #2e2a3a; --row-5: #2a333a;
                 --today-border: #ff6b6b;
-                --highlight-green-bg: rgba(46, 204, 113, 0.35); /* вища прозорість для кращої видимості */
-                --highlight-blue-bg: rgba(52, 152, 219, 0.3);
+                
+                --highlight-green-bg: rgba(46, 204, 113, 0.4); 
+                --highlight-green-sticky: #1d5233; 
+                
+                --highlight-blue-bg: rgba(52, 152, 219, 0.45); 
+                --highlight-blue-sticky: #1f4766; 
             }
         }
 
@@ -47,28 +55,29 @@
         table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 800px; background: var(--bg-card); }
         
         th, td { padding: 4px; height: 50px; text-align: center; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); box-sizing: border-box; transition: background-color 0.2s; }
-        th { border-top: 1px solid var(--border); background: var(--primary); color: white; font-weight: 500; font-size: 0.9rem; }
+        th { background: var(--primary); color: white; position: sticky; top: 0; z-index: 4; font-size: 0.9rem; }
+        
+        /* Виправлення кольору тексту для вихідних у шапці */
+        th.weekend { color: var(--text-main) !important; }
         
         th:first-child, td:first-child { 
-            position: sticky; left: 0; z-index: 2; box-shadow: 2px 0 5px rgba(0,0,0,0.05); 
-            text-align: left; padding-left: 10px; border-left: 1px solid var(--border); 
-            min-width: 100px; max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer;
+            position: sticky; left: 0; z-index: 5; background: inherit; text-align: left; padding-left: 10px; font-weight: 700; border-left: 1px solid var(--border); min-width: 100px; max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-shadow: 2px 0 5px rgba(0,0,0,0.05); cursor: pointer; 
         }
-        th:first-child { z-index: 3; background: var(--primary); cursor: default; }
+        th:first-child { background: var(--primary); color: white !important; z-index: 6; cursor: default; }
 
         /* Виділення СЬОГОДНІШНЬОГО дня */
-        .current-day-th { border-top: 3px solid var(--today-border) !important; border-left: 3px solid var(--today-border) !important; border-right: 3px solid var(--today-border) !important; background-color: #1a5c5c !important; }
+        .current-day-th { border-top: 3px solid var(--today-border) !important; border-left: 3px solid var(--today-border) !important; border-right: 3px solid var(--today-border) !important; background-color: #1a5c5c !important; color: white !important; }
         .current-day-td { border-left: 3px solid var(--today-border) !important; border-right: 3px solid var(--today-border) !important; background-color: rgba(231, 76, 60, 0.08) !important; }
         .current-day-td-bottom { border-bottom: 3px solid var(--today-border) !important; }
         
         /* ІНТЕРАКТИВНЕ ВИДІЛЕННЯ (Дні та Рядки) */
         .highlight-col { background-color: var(--highlight-green-bg) !important; border-left: 2px solid var(--highlight-green-solid) !important; border-right: 2px solid var(--highlight-green-solid) !important;}
-        th.highlight-col { border-top: 2px solid var(--highlight-green-solid) !important;}
+        th.highlight-col { border-top: 2px solid var(--highlight-green-solid) !important; color: var(--text-main) !important;}
         
-        .highlight-name { background-color: var(--highlight-green-bg) !important; border-left: 4px solid var(--highlight-green-solid) !important; }
+        .highlight-name { background-color: var(--highlight-green-sticky) !important; border-left: 4px solid var(--highlight-green-solid) !important; }
         
         .highlight-row td { background-color: var(--highlight-blue-bg) !important;}
-        .highlight-row td:first-child { border-left: 4px solid var(--highlight-blue-solid) !important; }
+        .highlight-row td:first-child { background-color: var(--highlight-blue-sticky) !important; border-left: 4px solid var(--highlight-blue-solid) !important; }
 
         .weekend { background-color: var(--weekend) !important; }
         .unavailable { color: #ff4d4d; font-weight: 900; font-size: 1.5rem; line-height: 0; cursor: pointer; vertical-align: bottom; }
@@ -115,7 +124,7 @@
         <div class="hint-legend">
             <div class="legend-item"><span class="shift-icon shift-full"></span> Повний день</div>
             <div class="legend-item"><span class="shift-icon shift-first"></span> Перша половина</div>
-            <div class="legend-item"><span class="shift-icon shift-first" style="-webkit-mask-image: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 20 20\'%3E%3Cpath d=\'M14,3 L5,18 M9.5,11 L16,17\' stroke=\'black\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'/%3E%3C/svg%3E'); mask-image: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 20 20\'%3E%3Cpath d=\'M14,3 L5,18 M9.5,11 L16,17\' stroke=\'black\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'/%3E%3C/svg%3E');"></span> Друга половина</div>
+            <div class="legend-item"><span class="shift-icon shift-second"></span> Друга половина</div>
         </div>
     </div>
 </div>

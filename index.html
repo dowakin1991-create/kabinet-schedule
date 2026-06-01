@@ -17,6 +17,11 @@
             --primary: #1F6B6B; --weekend: #e9ecef; --border: #c4cdd5;
             --row-1: #fdf2f2; --row-2: #f0f7f4; --row-3: #fef6e3; --row-4: #f3f0f7; --row-5: #eef5fb;
             --today-border: #e74c3c;
+            /* Насичені кольори виділення */
+            --highlight-green-solid: #2ecc71; /* помітний насичений зелений */
+            --highlight-green-bg: rgba(46, 204, 113, 0.25);
+            --highlight-blue-solid: #3498db; /* помітний насичений синій */
+            --highlight-blue-bg: rgba(52, 152, 219, 0.2);
         }
 
         @media (prefers-color-scheme: dark) {
@@ -25,10 +30,11 @@
                 --primary: #2ebfbf; --weekend: #2a2a2a; --border: #444444;
                 --row-1: #3a2a2a; --row-2: #2a3a32; --row-3: #3a352a; --row-4: #2e2a3a; --row-5: #2a333a;
                 --today-border: #ff6b6b;
+                --highlight-green-bg: rgba(46, 204, 113, 0.35); /* вища прозорість для кращої видимості */
+                --highlight-blue-bg: rgba(52, 152, 219, 0.3);
             }
         }
 
-        /* Забороняємо виділення тексту для більшої схожості з додатком */
         body { font-family: 'Montserrat', sans-serif; background-color: var(--bg-body); color: var(--text-main); margin: 0; padding: 10px; transition: background-color 0.3s ease; -webkit-user-select: none; user-select: none; }
         .container { max-width: 1200px; margin: 0 auto; }
         
@@ -56,10 +62,13 @@
         .current-day-td-bottom { border-bottom: 3px solid var(--today-border) !important; }
         
         /* ІНТЕРАКТИВНЕ ВИДІЛЕННЯ (Дні та Рядки) */
-        .highlight-col { background-color: rgba(46, 204, 113, 0.2) !important; }
-        .highlight-name { background-color: rgba(46, 204, 113, 0.25) !important; border-left: 4px solid #27ae60 !important; }
-        .highlight-row td { background-color: rgba(52, 152, 219, 0.15) !important; }
-        .highlight-row td:first-child { border-left: 4px solid #2980b9 !important; }
+        .highlight-col { background-color: var(--highlight-green-bg) !important; border-left: 2px solid var(--highlight-green-solid) !important; border-right: 2px solid var(--highlight-green-solid) !important;}
+        th.highlight-col { border-top: 2px solid var(--highlight-green-solid) !important;}
+        
+        .highlight-name { background-color: var(--highlight-green-bg) !important; border-left: 4px solid var(--highlight-green-solid) !important; }
+        
+        .highlight-row td { background-color: var(--highlight-blue-bg) !important;}
+        .highlight-row td:first-child { border-left: 4px solid var(--highlight-blue-solid) !important; }
 
         .weekend { background-color: var(--weekend) !important; }
         .unavailable { color: #ff4d4d; font-weight: 900; font-size: 1.5rem; line-height: 0; cursor: pointer; vertical-align: bottom; }
@@ -106,7 +115,7 @@
         <div class="hint-legend">
             <div class="legend-item"><span class="shift-icon shift-full"></span> Повний день</div>
             <div class="legend-item"><span class="shift-icon shift-first"></span> Перша половина</div>
-            <div class="legend-item"><span class="shift-icon shift-second"></span> Друга половина</div>
+            <div class="legend-item"><span class="shift-icon shift-first" style="-webkit-mask-image: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 20 20\'%3E%3Cpath d=\'M14,3 L5,18 M9.5,11 L16,17\' stroke=\'black\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'/%3E%3C/svg%3E'); mask-image: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 20 20\'%3E%3Cpath d=\'M14,3 L5,18 M9.5,11 L16,17\' stroke=\'black\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'/%3E%3C/svg%3E');"></span> Друга половина</div>
         </div>
     </div>
 </div>
@@ -136,7 +145,6 @@
     let unsubscribe = null;
     let initialScrollDone = false;
 
-    // Змінні для виділення
     let activeColDay = null;
     let activeRowEmpId = null;
 
@@ -245,7 +253,6 @@
         }
     }
 
-    // --- ФУНКЦІЇ ВИДІЛЕННЯ ---
     window.toggleColHighlight = function(day) {
         activeColDay = (activeColDay === day) ? null : day;
         render();

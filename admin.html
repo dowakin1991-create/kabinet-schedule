@@ -20,14 +20,13 @@
             --row-1: #fdf2f2; --row-2: #f0f7f4; --row-3: #fef6e3; --row-4: #f3f0f7; --row-5: #eef5fb;
             --today-border: #e74c3c;
             
-            /* Насичені кольори виділення */
             --highlight-green-solid: #2ecc71; 
             --highlight-green-bg: rgba(46, 204, 113, 0.3);
-            --highlight-green-sticky: #d5f5e3; /* Суцільний зелений для фіксованої колонки */
+            --highlight-green-sticky: #d5f5e3; 
             
             --highlight-blue-solid: #3498db; 
-            --highlight-blue-bg: rgba(52, 152, 219, 0.35); /* Зроблено більш насиченим */
-            --highlight-blue-sticky: #d6eaf8; /* Суцільний синій для фіксованої колонки */
+            --highlight-blue-bg: rgba(52, 152, 219, 0.35); 
+            --highlight-blue-sticky: #d6eaf8; 
         }
 
         @media (prefers-color-scheme: dark) {
@@ -38,10 +37,10 @@
                 --today-border: #ff6b6b;
                 
                 --highlight-green-bg: rgba(46, 204, 113, 0.4); 
-                --highlight-green-sticky: #1d5233; /* Суцільний для темної теми */
+                --highlight-green-sticky: #1d5233; 
                 
                 --highlight-blue-bg: rgba(52, 152, 219, 0.45); 
-                --highlight-blue-sticky: #1f4766; /* Суцільний для темної теми */
+                --highlight-blue-sticky: #1f4766; 
             }
         }
 
@@ -66,10 +65,9 @@
         .table-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; background: var(--bg-card); border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 900px; background: var(--bg-card); }
         
+        /* ВИПРАВЛЕНО Z-INDEX */
         th, td { padding: 4px; height: 50px; text-align: center; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); box-sizing: border-box; transition: background-color 0.2s; }
         th { background: #34495e; color: white; position: sticky; top: 0; z-index: 4; font-size: 0.9rem; }
-        
-        /* Виправлення кольору тексту для вихідних у шапці */
         th.weekend { color: var(--text-main) !important; }
 
         th:first-child, td:first-child { 
@@ -77,20 +75,14 @@
         }
         th:first-child { background: #34495e; color: white !important; z-index: 6; cursor: default; }
         
-        /* Виділення СЬОГОДНІШНЬОГО дня */
         .current-day-th { border-top: 3px solid var(--today-border) !important; border-left: 3px solid var(--today-border) !important; border-right: 3px solid var(--today-border) !important; background-color: #2c3e50 !important; color: white !important; }
         .current-day-td { border-left: 3px solid var(--today-border) !important; border-right: 3px solid var(--today-border) !important; background-color: rgba(231, 76, 60, 0.08) !important; }
         .current-day-td-bottom { border-bottom: 3px solid var(--today-border) !important; }
 
-        /* ІНТЕРАКТИВНЕ ВИДІЛЕННЯ (Дні та Рядки) */
         .highlight-col { background-color: var(--highlight-green-bg) !important; border-left: 2px solid var(--highlight-green-solid) !important; border-right: 2px solid var(--highlight-green-solid) !important;}
         th.highlight-col { border-top: 2px solid var(--highlight-green-solid) !important; color: var(--text-main) !important; }
-        
-        /* Використовуємо СУЦІЛЬНИЙ колір, щоб колонка не просвічувалась */
         .highlight-name { background-color: var(--highlight-green-sticky) !important; border-left: 4px solid var(--highlight-green-solid) !important; }
-        
         .highlight-row td { background-color: var(--highlight-blue-bg) !important;}
-        /* Використовуємо СУЦІЛЬНИЙ колір, щоб колонка не просвічувалась */
         .highlight-row td:first-child { background-color: var(--highlight-blue-sticky) !important; border-left: 4px solid var(--highlight-blue-solid) !important; }
 
         .weekend { background-color: var(--weekend) !important; }
@@ -104,13 +96,11 @@
 
         .duty-text { font-size: 0.55rem; color: #f1c40f; font-weight: bold; display: block; margin-top: 3px; letter-spacing: 0.5px; }
 
-        /* ВЕКТОРНІ ІКОНКИ ДЛЯ ЗМІН */
         .shift-icon { display: inline-block; width: 18px; height: 18px; background-color: var(--primary); vertical-align: middle; cursor: pointer; }
         .shift-full { -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M4,4 L16,16 M16,4 L4,16' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M4,4 L16,16 M16,4 L4,16' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain; }
         .shift-first { -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M4,4 L10,10 M16,4 L5,18' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M4,4 L10,10 M16,4 L5,18' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain; }
         .shift-second { -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M14,3 L5,18 M9.5,11 L16,17' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M14,3 L5,18 M9.5,11 L16,17' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain; }
 
-        /* СПЛИВАЮЧЕ ВІКНО */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
         .modal-content { background: var(--bg-card); padding: 20px; border-radius: 15px; width: 280px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
         .modal-content h3 { margin: 0 0 10px 0; text-align: center; font-size: 1.1rem; }
@@ -211,6 +201,10 @@
         if(unsubscribe) unsubscribe();
         document.getElementById('month-label').innerText = `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
         
+        // МИТТЄВЕ ОНОВЛЕННЯ ІНТЕРФЕЙСУ: очищаємо графік перед завантаженням, щоб дати змінилися без затримки
+        employees = employees.map(emp => ({ ...emp, shifts: [], shiftsFirst: [], shiftsSecond: [], unavail: [] }));
+        render();
+        
         unsubscribe = onSnapshot(doc(db, "schedules", getDocId()), (docSnap) => {
             if (docSnap.exists()) {
                 let data = docSnap.data().employees || [];
@@ -220,7 +214,6 @@
                 render();
             } else {
                 if (employees.length > 0) {
-                    employees = employees.map(emp => ({ ...emp, shifts: [], shiftsFirst: [], shiftsSecond: [], unavail: [] }));
                     saveData(); 
                 } else {
                     employees = [];
@@ -376,10 +369,12 @@
         activeColDay = null; 
         activeRowEmpId = null;
         
+        // Скидаємо скрол на початок
+        const tableWrapper = document.querySelector('.table-wrapper');
+        if (tableWrapper) tableWrapper.scrollLeft = 0;
+        
         const isCurrentMonth = (currentDate.getFullYear() === todayDate.getFullYear() && currentDate.getMonth() === todayDate.getMonth());
         if (!isCurrentMonth) {
-            const tableWrapper = document.querySelector('.table-wrapper');
-            if (tableWrapper) tableWrapper.scrollLeft = 0;
             initialScrollDone = true; 
         } else {
             initialScrollDone = false; 

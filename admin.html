@@ -112,19 +112,8 @@
         .emp-stats { background: var(--bg-body); padding: 15px; border-radius: 10px; margin-bottom: 10px; border: 1px solid var(--border); }
         .emp-stats p { margin: 8px 0; display: flex; justify-content: space-between; font-size: 1rem; font-weight: 500; }
         .emp-stats strong { color: #e74c3c; font-size: 1.2rem; }
-
-        /* Прихований обгортка для експорту */
-        #export-wrapper { position: absolute; top: -9999px; left: -9999px; z-index: -100; }
-        #export-container { background: #ffffff; padding: 20px; color: #2c3e50; font-family: 'Montserrat', sans-serif; width: max-content; }
-        #export-container h2 { text-align: center; margin: 0 0 20px 0; color: #1F6B6B; font-size: 1.8rem; text-transform: uppercase; letter-spacing: 1px; }
-        #export-container table { border-collapse: collapse; min-width: 800px; font-size: 1rem; }
-        #export-container th, #export-container td { border: 1px solid #c4cdd5; padding: 6px 4px; text-align: center; height: 55px; }
-        #export-container th { background: #34495e; color: white; font-weight: 700; }
-        #export-container td:first-child { text-align: left; padding-left: 15px; font-weight: 700; width: 160px; background: #fdfdfd; }
-        #export-container .weekend-export { background-color: #f1f2f6; }
-        #export-container .duty-exp { font-size: 0.6rem; color: #f1c40f; display: block; margin-top: 4px; }
         
-        #resultImageContainer img { box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-radius: 6px; }
+        .edit-btn { background: rgba(243, 156, 18, 0.7); color: white; padding: 2px 5px; border-radius: 4px; font-size: 0.7rem; margin-left: 5px; cursor: pointer; border: none; }
     </style>
 </head>
 <body>
@@ -149,8 +138,8 @@
             <input type="text" id="newEmpName" placeholder="Введіть ім'я">
             <button class="add-btn" onclick="addEmployee()">+ Додати</button>
         </div>
-        <button class="export-btn" onclick="exportHalfMonth(event, 1)">📸 1-15</button>
-        <button class="export-btn" onclick="exportHalfMonth(event, 2)">📸 16-Кінець</button>
+        <button class="export-btn" onclick="exportHalfMonth(event, 1)">📲 у Viber (1-15)</button>
+        <button class="export-btn" onclick="exportHalfMonth(event, 2)">📲 у Viber (16-Кінець)</button>
     </div>
 
     <div class="table-wrapper">
@@ -161,7 +150,6 @@
     </div>
 </div>
 
-<!-- Модальні вікна -->
 <div id="shiftModal" class="modal-overlay">
     <div class="modal-content">
         <h3>Оберіть тип зміни</h3>
@@ -186,26 +174,14 @@
     </div>
 </div>
 
-<!-- Модальне вікно для ГОТОВОГО ГРАФІКА -->
 <div id="resultModal" class="modal-overlay">
     <div class="modal-content" style="width: 95%; max-width: 800px;">
         <h3 style="color: var(--primary);">✅ Графік створено!</h3>
-        <p style="font-size: 0.85rem; opacity: 0.8; text-align: center; margin-bottom: 10px;">Затисніть картинку пальцем, щоб поділитися у Viber або зберегти.</p>
-        <div id="resultImageContainer" style="width: 100%; max-height: 60vh; overflow-y: auto; background: #f0f0f0; border-radius: 8px;">
+        <p style="font-size: 0.85rem; opacity: 0.8; text-align: center; margin-bottom: 10px;">Затисніть картинку пальцем, щоб скопіювати або поділитися у Viber.</p>
+        <div id="resultImageContainer" style="width: 100%; max-height: 60vh; overflow-y: auto; background: #f0f0f0; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
             <!-- Тут з'явиться готова картинка -->
         </div>
         <button class="modal-btn" onclick="closeModal('resultModal')" style="margin-top: 10px; background: var(--primary); color: white;">Закрити</button>
-    </div>
-</div>
-
-<!-- Прихований контейнер для рендера -->
-<div id="export-wrapper">
-    <div id="export-container">
-        <h2 id="export-title">Графік</h2>
-        <table id="export-table">
-            <thead id="export-thead"></thead>
-            <tbody id="export-tbody"></tbody>
-        </table>
     </div>
 </div>
 
@@ -452,11 +428,11 @@
         loadData();
     }
 
-    // --- СУПЕР НАДІЙНИЙ ЕКСПОРТ (БЕЗ ЗАВИСАНЬ) ---
+    // --- ІДЕАЛЬНИЙ ЕКСПОРТ (БЕЗ БАГІВ ТА ПЕРЕВЕРНУТИХ РЯДКІВ) ---
     window.exportHalfMonth = async function(event, half) {
         const btn = event.target;
         const originalText = btn.innerText;
-        btn.innerText = "⏳ Будь ласка, зачекайте...";
+        btn.innerText = "⏳ Формую...";
         btn.disabled = true;
 
         try {
@@ -467,68 +443,80 @@
             const startDay = half === 1 ? 1 : 16;
             const endDay = half === 1 ? 15 : daysInMonth;
 
-            const container = document.getElementById('export-container');
-            const title = document.getElementById('export-title');
-            const thead = document.getElementById('export-thead');
-            const tbody = document.getElementById('export-tbody');
-
-            title.innerText = `ГРАФІК KABINET: ${monthNames[month].toUpperCase()} ${year} (ЧИСЛА ${startDay}-${endDay})`;
-
-            // Шапка
-            let headHtml = '<tr><th style="background: #34495e; color: white; border: 1px solid #c4cdd5; padding: 10px; font-size: 14px;">Ім\'я</th>';
+            // 1. Створюємо тимчасовий ізольований блок ПОВЕРХ усього
+            const exportDiv = document.createElement('div');
+            exportDiv.style.position = 'fixed';
+            exportDiv.style.top = '0';
+            exportDiv.style.left = '0';
+            exportDiv.style.zIndex = '-9999'; // Невидимий для ока, але видимий для рендеру
+            exportDiv.style.background = '#ffffff';
+            exportDiv.style.padding = '20px';
+            exportDiv.style.fontFamily = "'Montserrat', sans-serif";
+            exportDiv.style.width = 'max-content';
+            
+            // 2. Вставляємо HTML з жорсткими inline-стилями (ніяких CSS класів!)
+            let html = `<h2 style="text-align: center; color: #1F6B6B; font-size: 22px; margin: 0 0 20px 0; text-transform: uppercase;">ГРАФІК KABINET: ${monthNames[month]} ${year} (ЧИСЛА ${startDay}-${endDay})</h2>`;
+            html += `<table style="border-collapse: collapse; background: #ffffff; margin: 0 auto;"><thead><tr>`;
+            html += `<th style="border: 1px solid #c4cdd5; background: #34495e; color: white; padding: 12px; width: 140px; font-size: 15px; text-align: left;">Ім'я</th>`;
+            
             for(let i = startDay; i <= endDay; i++) {
                 const dayIndex = new Date(year, month, i).getDay();
                 const isWeekend = (dayIndex === 0 || dayIndex === 6);
                 const duty = getDutyName(year, month, i);
-                headHtml += `<th style="border: 1px solid #c4cdd5; background: ${isWeekend ? '#2c3e50' : '#34495e'}; color: white; min-width: 45px; padding: 10px 5px; font-size: 14px;">
+                const bg = isWeekend ? '#2c3e50' : '#34495e';
+                html += `<th style="border: 1px solid #c4cdd5; background: ${bg}; color: white; width: 50px; padding: 8px 4px; font-size: 15px; text-align: center;">
                     ${i}<br><span style="font-size: 11px; font-weight: normal;">${dayNames[dayIndex]}</span><br>
-                    <span style="font-size: 10px; color: #f1c40f; display: block; margin-top: 4px;">${duty}</span>
+                    <span style="font-size: 9px; color: #f1c40f; display: block; margin-top: 4px;">${duty}</span>
                 </th>`;
             }
-            headHtml += '</tr>';
-            thead.innerHTML = headHtml;
+            html += `</tr></thead><tbody>`;
 
-            // Згенеровані BASE64 Іконки для гарантованого рендеру на всіх пристроях
-            const b64Full = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgdmlld0JveD0iMCAwIDIwIDIwIj48cGF0aCBkPSJNNCw0IEwxNiwxNiBNMTYsNCBMNCwxNiIgc3Ryb2tlPSIjMUY2QjZCIiBzdHJva2Utd2lkdGg9IjMiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjwvc3ZnPg==";
-            const b64First = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgdmlld0JveD0iMCAwIDIwIDIwIj48cGF0aCBkPSJNNCw0IEwxMCwxMCBNMTYsNCBMNSwxOCIgc3Ryb2tlPSIjMUY2QjZCIiBzdHJva2Utd2lkdGg9IjMiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjwvc3ZnPg==";
-            const b64Second = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgdmlld0JveD0iMCAwIDIwIDIwIj48cGF0aCBkPSJNMTQsMyBMNSwxOCBNOS41LDExIEwxNiwxNyIgc3Ryb2tlPSIjMUY2QjZCIiBzdHJva2Utd2lkdGg9IjMiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjwvc3ZnPg==";
+            // SVG іконки у Base64 (Гарантія того, що картинка відрендериться на iPhone)
+            const b64Full = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMCAyMCI+PHBhdGggZD0iTTQsNCBMMTYsMTYgTTE2LDQgTDQsMTYiIHN0cm9rZT0iIzFGNkI2QiIgc3Ryb2tlLXdpZHRoPSIzIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=";
+            const b64First = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMCAyMCI+PHBhdGggZD0iTTQsNCBMMTAsMTAgTTE2LDQgTDUsMTgiIHN0cm9rZT0iIzFGNkI2QiIgc3Ryb2tlLXdpZHRoPSIzIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=";
+            const b64Second = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMCAyMCI+PHBhdGggZD0iTTE0LDMgTDUsMTggTTkuNSwxMSBMMTYsMTciIHN0cm9rZT0iIzFGNkI2QiIgc3Ryb2tlLXdpZHRoPSIzIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=";
 
-            tbody.innerHTML = employees.map(emp => {
-                return `<tr>
-                    <td style="border: 1px solid #c4cdd5; text-align: left; padding: 12px 15px; font-weight: bold; background: #fdfdfd; color: #2c3e50; font-size: 14px;">${emp.name}</td>
-                    ${Array.from({length: endDay - startDay + 1}, (_, idx) => {
-                        const day = startDay + idx;
-                        const isWeekend = (new Date(year, month, day).getDay() % 6 === 0);
-                        let content = '';
-                        
-                        if(emp.shifts.includes(day)) content = `<img src="${b64Full}" style="width:20px;height:20px;vertical-align:middle;display:block;margin:0 auto;">`;
-                        else if(emp.shiftsFirst.includes(day)) content = `<img src="${b64First}" style="width:20px;height:20px;vertical-align:middle;display:block;margin:0 auto;">`;
-                        else if(emp.shiftsSecond.includes(day)) content = `<img src="${b64Second}" style="width:20px;height:20px;vertical-align:middle;display:block;margin:0 auto;">`;
-                        if(emp.unavail.includes(day)) content += '<span style="color: #ff4d4d; font-weight: 900; font-size: 20px; line-height: 0;">•</span>';
-                        
-                        return `<td style="border: 1px solid #c4cdd5; background: ${isWeekend ? '#f1f2f6' : '#ffffff'}; text-align:center;">${content}</td>`;
-                    }).join('')}
-                </tr>`;
-            }).join('');
-
-            // Даємо браузеру час відмалювати всі елементи
-            await new Promise(r => setTimeout(r, 300)); 
+            employees.forEach(emp => {
+                html += `<tr><td style="border: 1px solid #c4cdd5; padding: 12px; font-weight: bold; background: #ffffff; color: #2c3e50; text-align: left; font-size: 14px;">${emp.name}</td>`;
+                for(let i = startDay; i <= endDay; i++) {
+                    const isWeekend = (new Date(year, month, i).getDay() % 6 === 0);
+                    let content = '';
+                    if(emp.shifts.includes(i)) content = `<img src="${b64Full}" style="width:18px;height:18px;display:block;margin:0 auto;">`;
+                    else if(emp.shiftsFirst.includes(i)) content = `<img src="${b64First}" style="width:18px;height:18px;display:block;margin:0 auto;">`;
+                    else if(emp.shiftsSecond.includes(i)) content = `<img src="${b64Second}" style="width:18px;height:18px;display:block;margin:0 auto;">`;
+                    if(emp.unavail.includes(i)) content += `<div style="color: #ff4d4d; font-weight: 900; font-size: 24px; line-height: 10px; margin-top: 2px;">•</div>`;
+                    
+                    html += `<td style="border: 1px solid #c4cdd5; background: ${isWeekend ? '#f1f2f6' : '#ffffff'}; text-align: center; vertical-align: middle; height: 45px;">${content}</td>`;
+                }
+                html += `</tr>`;
+            });
+            html += `</tbody></table>`;
             
-            const canvas = await html2canvas(container, { 
+            exportDiv.innerHTML = html;
+            document.body.appendChild(exportDiv);
+
+            // Чекаємо, щоб браузер 100% завантажив усі шрифти та SVG-картинки
+            await new Promise(r => setTimeout(r, 250));
+
+            // 3. Формуємо картинку з примусовими розмірами (щоб нічого не обрізалось)
+            const canvas = await html2canvas(exportDiv, { 
                 scale: 2, 
                 backgroundColor: "#ffffff",
-                useCORS: true,
+                windowWidth: exportDiv.scrollWidth + 40,
+                windowHeight: exportDiv.scrollHeight + 40,
                 logging: false
             });
-            
-            // Замість виклику share (який висне), просто показуємо картинку користувачу
+
+            document.body.removeChild(exportDiv);
+
+            // 4. Показуємо результат у вікні (ніяких завислих відправок)
             const imgData = canvas.toDataURL("image/png");
-            document.getElementById('resultImageContainer').innerHTML = `<img src="${imgData}" style="width: 100%; height: auto; display: block;">`;
+            document.getElementById('resultImageContainer').innerHTML = `<img src="${imgData}" style="width: 100%; height: auto; display: block; border-radius: 4px;">`;
             document.getElementById('resultModal').style.display = 'flex';
 
         } catch (e) {
             console.error(e);
-            alert("Сталася помилка при створенні графіка. Спробуйте ще раз.");
+            alert("Сталася помилка при створенні графіка. Перезавантажте сторінку.");
         } finally {
             btn.innerText = originalText;
             btn.disabled = false;

@@ -12,6 +12,7 @@
     <meta name="apple-mobile-web-app-title" content="KABINET ШЕФ">
 
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <style>
         :root {
@@ -55,17 +56,18 @@
         .month-selector { display: flex; align-items: center; justify-content: center; flex-grow: 1; }
         .nav-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; padding: 0 15px; color: var(--text-main); }
         
-        .admin-controls { display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; background: var(--bg-card); padding: 12px; border-radius: 12px; border: 1px solid var(--border); }
-        @media(min-width: 768px) { .admin-controls { flex-direction: row; align-items: center; } }
+        .admin-controls { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; background: var(--bg-card); padding: 12px; border-radius: 12px; border: 1px solid var(--border); align-items: center; }
+        .input-group { display: flex; flex-grow: 1; gap: 8px; min-width: 250px; }
         
-        input { flex-grow: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-body); color: var(--text-main); font-family: inherit; font-size: 0.95rem; -webkit-user-select: auto; user-select: auto; }
-        button { padding: 10px 15px; border-radius: 8px; font-weight: 700; cursor: pointer; border: none; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 5px;}
+        input { flex-grow: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-body); color: var(--text-main); font-family: inherit; font-size: 0.95rem; }
+        button { padding: 10px 15px; border-radius: 8px; font-weight: 700; cursor: pointer; border: none; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 5px; transition: opacity 0.2s;}
+        button:active { opacity: 0.7; }
         .add-btn { background: #3498db; color: white; }
+        .export-btn { background: #7360f2; color: white; flex-grow: 1; }
         
         .table-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; background: var(--bg-card); border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 900px; background: var(--bg-card); }
         
-        /* ВИПРАВЛЕНО Z-INDEX */
         th, td { padding: 4px; height: 50px; text-align: center; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); box-sizing: border-box; transition: background-color 0.2s; }
         th { background: #34495e; color: white; position: sticky; top: 0; z-index: 4; font-size: 0.9rem; }
         th.weekend { color: var(--text-main) !important; }
@@ -102,13 +104,25 @@
         .shift-second { -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M14,3 L5,18 M9.5,11 L16,17' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M14,3 L5,18 M9.5,11 L16,17' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain; }
 
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
-        .modal-content { background: var(--bg-card); padding: 20px; border-radius: 15px; width: 280px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-        .modal-content h3 { margin: 0 0 10px 0; text-align: center; font-size: 1.1rem; }
-        .modal-btn { padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-body); color: var(--text-main); font-weight: bold; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .modal-btn:active { opacity: 0.7; }
-        .modal-btn.danger { color: #e74c3c; border-color: #e74c3c; }
+        .modal-content { background: var(--bg-card); padding: 20px; border-radius: 15px; width: 300px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .modal-content h3 { margin: 0 0 10px 0; text-align: center; font-size: 1.2rem; color: var(--primary); }
         
-        .edit-btn { background: rgba(243, 156, 18, 0.7); color: white; padding: 2px 5px; border-radius: 4px; font-size: 0.7rem; margin-left: 5px; cursor: pointer; border: none; }
+        .modal-btn { padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-body); color: var(--text-main); font-weight: bold; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .modal-btn.danger { color: #e74c3c; border-color: #e74c3c; }
+
+        .emp-stats { background: var(--bg-body); padding: 15px; border-radius: 10px; margin-bottom: 10px; border: 1px solid var(--border); }
+        .emp-stats p { margin: 8px 0; display: flex; justify-content: space-between; font-size: 1rem; font-weight: 500; }
+        .emp-stats strong { color: #e74c3c; font-size: 1.2rem; }
+
+        /* Оптимізований контейнер експорту: невидимий, але рендериться ідеально */
+        #export-container { position: fixed; top: 0; left: 0; background: #ffffff; padding: 20px; color: #2c3e50; font-family: 'Montserrat', sans-serif; width: max-content; z-index: -9999; visibility: hidden; }
+        #export-container h2 { text-align: center; margin: 0 0 20px 0; color: #1F6B6B; font-size: 1.8rem; text-transform: uppercase; letter-spacing: 1px; }
+        #export-container table { border-collapse: collapse; min-width: 800px; font-size: 1rem; }
+        #export-container th, #export-container td { border: 1px solid #c4cdd5; padding: 6px 4px; text-align: center; height: 55px; }
+        #export-container th { background: #34495e; color: white; font-weight: 700; }
+        #export-container td:first-child { text-align: left; padding-left: 15px; font-weight: 700; width: 160px; background: #fdfdfd; }
+        #export-container .weekend-export { background-color: #f1f2f6; }
+        #export-container .duty-exp { font-size: 0.6rem; color: #f1c40f; display: block; margin-top: 4px; }
     </style>
 </head>
 <body>
@@ -129,8 +143,12 @@
     </header>
 
     <div class="admin-controls">
-        <input type="text" id="newEmpName" placeholder="Введіть ім'я">
-        <button class="add-btn" onclick="addEmployee()">+ Додати</button>
+        <div class="input-group">
+            <input type="text" id="newEmpName" placeholder="Введіть ім'я">
+            <button class="add-btn" onclick="addEmployee()">+ Додати</button>
+        </div>
+        <button class="export-btn" onclick="exportHalfMonth(event, 1)">📲 у Viber (1-15)</button>
+        <button class="export-btn" onclick="exportHalfMonth(event, 2)">📲 у Viber (16-Кінець)</button>
     </div>
 
     <div class="table-wrapper">
@@ -148,8 +166,30 @@
         <button class="modal-btn" onclick="setShiftType('first')"><span class="shift-icon shift-first" style="background-color: var(--text-main);"></span> Перша половина</button>
         <button class="modal-btn" onclick="setShiftType('second')"><span class="shift-icon shift-second" style="background-color: var(--text-main);"></span> Друга половина</button>
         <button class="modal-btn danger" onclick="setShiftType('none')">Видалити зміну</button>
-        <button class="modal-btn" onclick="closeModal()" style="margin-top: 5px; background: transparent; border: none; text-decoration: underline;">Скасувати</button>
+        <button class="modal-btn" onclick="closeModal('shiftModal')" style="margin-top: 5px; background: transparent; border: none; text-decoration: underline;">Скасувати</button>
     </div>
+</div>
+
+<div id="infoModal" class="modal-overlay">
+    <div class="modal-content">
+        <h3 id="infoModalName">Ім'я</h3>
+        <div class="emp-stats">
+            <p>Зміни (1-15): <strong id="statFirstHalf">0</strong></p>
+            <p id="statSecondLabel">Зміни (16-31): <strong id="statSecondHalf">0</strong></p>
+        </div>
+        <button class="modal-btn" style="background: #f39c12; color: white; border: none;" onclick="triggerEditName()">✏️ Редагувати ім'я</button>
+        <button class="modal-btn danger" onclick="triggerDeleteEmp()">🗑 Видалити працівника</button>
+        <button class="modal-btn" onclick="closeModal('infoModal')" style="margin-top: 5px; background: transparent; border: none; text-decoration: underline;">Закрити</button>
+    </div>
+</div>
+
+<!-- Прихований контейнер для ідеального експорту зображення -->
+<div id="export-container">
+    <h2 id="export-title">Графік</h2>
+    <table id="export-table">
+        <thead id="export-thead"></thead>
+        <tbody id="export-tbody"></tbody>
+    </table>
 </div>
 
 <script type="module">
@@ -201,7 +241,6 @@
         if(unsubscribe) unsubscribe();
         document.getElementById('month-label').innerText = `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
         
-        // МИТТЄВЕ ОНОВЛЕННЯ ІНТЕРФЕЙСУ: очищаємо графік перед завантаженням, щоб дати змінилися без затримки
         employees = employees.map(emp => ({ ...emp, shifts: [], shiftsFirst: [], shiftsSecond: [], unavail: [] }));
         render();
         
@@ -260,12 +299,7 @@
             const worksOnActiveDay = activeColDay && (emp.shifts.includes(activeColDay) || emp.shiftsFirst.includes(activeColDay) || emp.shiftsSecond.includes(activeColDay));
             
             return `<tr class="${isRowHighlighted ? 'highlight-row' : ''}">
-                <td onclick="toggleRowHighlight(${emp.id})" class="${worksOnActiveDay ? 'highlight-name' : ''}">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span>${emp.name}</span>
-                        <button class="edit-btn" onclick="editEmployee(event, ${emp.id}, '${emp.name}')">✏️</button>
-                    </div>
-                </td>
+                <td onclick="showEmployeeInfo(event, ${emp.id})" class="${worksOnActiveDay ? 'highlight-name' : ''}">${emp.name}</td>
                 ${Array.from({length:daysInMonth}, (_, i) => {
                     const day = i + 1;
                     const isWeekend = (new Date(year, month, day).getDay() % 6 === 0);
@@ -296,38 +330,60 @@
         }
     }
 
-    window.toggleColHighlight = function(day) {
-        activeColDay = (activeColDay === day) ? null : day;
-        render();
-    }
-
-    window.toggleRowHighlight = function(empId) {
-        activeRowEmpId = (activeRowEmpId === empId) ? null : empId;
-        render();
-    }
+    window.toggleColHighlight = function(day) { activeColDay = (activeColDay === day) ? null : day; render(); }
+    window.toggleRowHighlight = function(empId) { activeRowEmpId = (activeRowEmpId === empId) ? null : empId; render(); }
 
     window.addEmployee = function() {
         const nameInput = document.getElementById('newEmpName');
         const name = nameInput.value.trim();
         if(name) {
             employees.push({ id: Date.now(), name: name, shifts: [], shiftsFirst: [], shiftsSecond: [], unavail: [] });
-            nameInput.value = '';
-            saveData(); 
+            nameInput.value = ''; saveData(); 
         }
     }
 
-    window.editEmployee = function(event, id, currentName) {
-        event.stopPropagation(); 
-        let newName = prompt(`Редагування: ${currentName}\n\nВведіть нове ім'я або залиште поле ПУСТИМ, щоб ВИДАЛИТИ працівника:`, currentName);
-        if (newName === null) return; 
-        if (newName.trim() === "") {
-            if (confirm(`Ви впевнені, що хочете видалити працівника "${currentName}" з цього місяця?`)) {
-                employees = employees.filter(e => e.id !== id);
-                saveData();
-            }
-        } else if (newName !== currentName) {
-            const emp = employees.find(e => e.id === id);
-            if(emp) { emp.name = newName.trim(); saveData(); }
+    window.showEmployeeInfo = function(event, id) {
+        event.stopPropagation();
+        toggleRowHighlight(id); 
+        const emp = employees.find(e => e.id === id);
+        if(!emp) return;
+
+        window.currentEditEmpId = id; 
+        document.getElementById('infoModalName').innerText = emp.name;
+
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+        let count1 = 0; let count2 = 0;
+        for(let d=1; d<=15; d++) {
+            if(emp.shifts.includes(d)) count1 += 1;
+            if(emp.shiftsFirst.includes(d) || emp.shiftsSecond.includes(d)) count1 += 0.5;
+        }
+        for(let d=16; d<=daysInMonth; d++) {
+            if(emp.shifts.includes(d)) count2 += 1;
+            if(emp.shiftsFirst.includes(d) || emp.shiftsSecond.includes(d)) count2 += 0.5;
+        }
+
+        document.getElementById('statFirstHalf').innerText = count1;
+        document.getElementById('statSecondLabel').innerHTML = `Зміни (16-${daysInMonth}): <strong id="statSecondHalf">${count2}</strong>`;
+        document.getElementById('infoModal').style.display = 'flex';
+    }
+
+    window.triggerEditName = function() {
+        const emp = employees.find(e => e.id === window.currentEditEmpId);
+        if(!emp) return;
+        closeModal('infoModal');
+        let newName = prompt(`Редагування: ${emp.name}\n\nВведіть нове ім'я:`, emp.name);
+        if (newName && newName.trim() !== "" && newName !== emp.name) { emp.name = newName.trim(); saveData(); }
+    }
+
+    window.triggerDeleteEmp = function() {
+        const emp = employees.find(e => e.id === window.currentEditEmpId);
+        if(!emp) return;
+        closeModal('infoModal');
+        if (confirm(`Ви впевнені, що хочете видалити працівника "${emp.name}" з цього місяця?`)) {
+            employees = employees.filter(e => e.id !== window.currentEditEmpId); saveData();
         }
     }
 
@@ -356,31 +412,113 @@
         if (type === 'first') emp.shiftsFirst.push(day);
         if (type === 'second') emp.shiftsSecond.push(day);
 
-        closeModal(); render(); saveData();
+        closeModal('shiftModal'); render(); saveData();
     }
 
-    window.closeModal = function() {
-        document.getElementById('shiftModal').style.display = 'none';
-        window.currentEditEmpId = null; window.currentEditDay = null;
+    window.closeModal = function(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+        if(modalId === 'shiftModal') { window.currentEditEmpId = null; window.currentEditDay = null; }
     }
 
     window.changeMonth = function(dir) {
         currentDate.setMonth(currentDate.getMonth() + dir);
-        activeColDay = null; 
-        activeRowEmpId = null;
-        
-        // Скидаємо скрол на початок
+        activeColDay = null; activeRowEmpId = null;
         const tableWrapper = document.querySelector('.table-wrapper');
         if (tableWrapper) tableWrapper.scrollLeft = 0;
-        
         const isCurrentMonth = (currentDate.getFullYear() === todayDate.getFullYear() && currentDate.getMonth() === todayDate.getMonth());
-        if (!isCurrentMonth) {
-            initialScrollDone = true; 
-        } else {
-            initialScrollDone = false; 
-        }
-        
+        initialScrollDone = !isCurrentMonth;
         loadData();
+    }
+
+    // --- ІДЕАЛЬНИЙ ЕКСПОРТ І ВІДПРАВКА В VIBER ---
+    window.exportHalfMonth = async function(event, half) {
+        const btn = event.target;
+        const originalText = btn.innerText;
+        btn.innerText = "⏳ Формую...";
+
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+        const startDay = half === 1 ? 1 : 16;
+        const endDay = half === 1 ? 15 : daysInMonth;
+
+        const container = document.getElementById('export-container');
+        const title = document.getElementById('export-title');
+        const thead = document.getElementById('export-thead');
+        const tbody = document.getElementById('export-tbody');
+
+        title.innerText = `Графік KABINET: ${monthNames[month]} ${year} (Числа ${startDay}-${endDay})`;
+
+        // Створюємо шапку для експорту
+        let headHtml = '<tr><th style="background: #34495e; color: white; border: 1px solid #c4cdd5; padding: 10px;">Ім\'я</th>';
+        for(let i = startDay; i <= endDay; i++) {
+            const dayIndex = new Date(year, month, i).getDay();
+            const isWeekend = (dayIndex === 0 || dayIndex === 6);
+            const duty = getDutyName(year, month, i);
+            headHtml += `<th style="border: 1px solid #c4cdd5; background: ${isWeekend ? '#2c3e50' : '#34495e'}; color: white; min-width: 45px; padding: 10px 5px;">
+                ${i}<br><span style="font-size: 0.75rem; font-weight: normal;">${dayNames[dayIndex]}</span><br>
+                <span style="font-size: 0.6rem; color: #f1c40f; display: block; margin-top: 4px;">${duty}</span>
+            </th>`;
+        }
+        headHtml += '</tr>';
+        thead.innerHTML = headHtml;
+
+        // Прямі SVG-картинки для 100% гарантованого рендеру на iPhone (замість масок)
+        const svgFull = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M4,4 L16,16 M16,4 L4,16' stroke='%231F6B6B' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E";
+        const svgFirst = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M4,4 L10,10 M16,4 L5,18' stroke='%231F6B6B' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E";
+        const svgSecond = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M14,3 L5,18 M9.5,11 L16,17' stroke='%231F6B6B' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E";
+
+        tbody.innerHTML = employees.map(emp => {
+            return `<tr>
+                <td style="border: 1px solid #c4cdd5; text-align: left; padding: 12px 15px; font-weight: bold; background: #fdfdfd; color: #2c3e50;">${emp.name}</td>
+                ${Array.from({length: endDay - startDay + 1}, (_, idx) => {
+                    const day = startDay + idx;
+                    const isWeekend = (new Date(year, month, day).getDay() % 6 === 0);
+                    let content = '';
+                    
+                    if(emp.shifts.includes(day)) content = `<img src="${svgFull}" style="width:18px;height:18px;vertical-align:middle;">`;
+                    else if(emp.shiftsFirst.includes(day)) content = `<img src="${svgFirst}" style="width:18px;height:18px;vertical-align:middle;">`;
+                    else if(emp.shiftsSecond.includes(day)) content = `<img src="${svgSecond}" style="width:18px;height:18px;vertical-align:middle;">`;
+                    if(emp.unavail.includes(day)) content += '<span style="color: #ff4d4d; font-weight: 900; font-size: 1.5rem; line-height: 0;">•</span>';
+                    
+                    return `<td style="border: 1px solid #c4cdd5; background: ${isWeekend ? '#f1f2f6' : '#ffffff'};">${content}</td>`;
+                }).join('')}
+            </tr>`;
+        }).join('');
+
+        try {
+            container.style.visibility = 'visible'; // Робимо видимим для коректного скріншота
+            await new Promise(r => setTimeout(r, 150)); 
+            
+            const canvas = await html2canvas(container, { scale: 2, backgroundColor: "#ffffff" });
+            container.style.visibility = 'hidden'; // Ховаємо назад
+            
+            canvas.toBlob(async (blob) => {
+                const file = new File([blob], `Grafik_KABINET_${startDay}-${endDay}.png`, { type: "image/png" });
+                
+                // Нативна відправка через Web Share API (Викликає меню вибору Viber/Telegram)
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({ 
+                        files: [file], 
+                        title: 'Графік KABINET',
+                        text: `Графік роботи KABINET: ${startDay}-${endDay} ${monthNames[month].toLowerCase()}`
+                    });
+                } else {
+                    // Fallback для старих браузерів
+                    const link = document.createElement('a');
+                    link.download = `Grafik_KABINET_${startDay}-${endDay}.png`;
+                    link.href = canvas.toDataURL();
+                    link.click();
+                }
+                btn.innerText = originalText;
+            });
+        } catch (e) {
+            console.error(e);
+            alert("Помилка створення зображення.");
+            container.style.visibility = 'hidden';
+            btn.innerText = originalText;
+        }
     }
 
     loadData();

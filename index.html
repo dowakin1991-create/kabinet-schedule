@@ -64,7 +64,6 @@
         .table-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; background: var(--bg-card); border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 800px; background: var(--bg-card); }
         
-        /* ВИПРАВЛЕНО Z-INDEX */
         th, td { padding: 4px; height: 50px; text-align: center; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); box-sizing: border-box; transition: background-color 0.2s; }
         th { border-top: 1px solid var(--border); background: var(--primary); color: white; position: sticky; top: 0; z-index: 4; font-size: 0.9rem; }
         th.weekend { color: var(--text-main) !important; }
@@ -108,14 +107,19 @@
 
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
         .modal-content { background: var(--bg-card); padding: 20px; border-radius: 15px; width: 280px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); text-align: center; }
-        .modal-content h3 { margin: 0 0 10px 0; font-size: 1.2rem; }
+        .modal-content h3 { margin: 0 0 10px 0; font-size: 1.2rem; color: var(--primary); }
         .modal-content p { margin: 0 0 15px 0; font-size: 0.95rem; opacity: 0.9; line-height: 1.4; }
-        .modal-btn { padding: 12px; border-radius: 8px; border: 1px solid var(--border); font-weight: bold; cursor: pointer; font-size: 1rem; width: 100%; transition: opacity 0.2s; }
+        
+        .modal-btn { padding: 12px; border-radius: 8px; border: 1px solid var(--border); font-weight: bold; cursor: pointer; font-size: 1rem; width: 100%; transition: opacity 0.2s; background: var(--bg-body); color: var(--text-main); }
         .modal-btn:active { opacity: 0.7; }
         .btn-confirm { background: #2ecc71; color: white; border: none; }
         .btn-danger { background: #e74c3c; color: white; border: none; }
         .btn-cancel { background: transparent; color: var(--text-main); text-decoration: underline; margin-top: 5px; border: none; }
         .modal-actions { display: flex; flex-direction: column; gap: 8px; }
+
+        .emp-stats { background: var(--bg-body); padding: 15px; border-radius: 10px; margin-bottom: 10px; border: 1px solid var(--border); text-align: left;}
+        .emp-stats p { margin: 8px 0; display: flex; justify-content: space-between; font-size: 1rem; font-weight: 500; opacity: 1; }
+        .emp-stats strong { color: #e74c3c; font-size: 1.2rem; }
     </style>
 </head>
 <body>
@@ -152,12 +156,24 @@
 
 <div id="confirmModal" class="modal-overlay">
     <div class="modal-content">
-        <h3 id="confirmTitle">Підтвердження</h3>
+        <h3 id="confirmTitle" style="color: var(--text-main);">Підтвердження</h3>
         <p id="confirmText">Ви дійсно хочете змінити статус?</p>
         <div class="modal-actions">
             <button id="confirmBtn" class="modal-btn btn-confirm" onclick="executeRedDot()">Так, підтвердити</button>
             <button class="modal-btn btn-cancel" onclick="cancelRedDot()">Скасувати</button>
         </div>
+    </div>
+</div>
+
+<!-- Модальне вікно ПРОФІЛЮ працівника -->
+<div id="infoModal" class="modal-overlay">
+    <div class="modal-content">
+        <h3 id="infoModalName">Ім'я</h3>
+        <div class="emp-stats">
+            <p>Зміни (1-15): <strong id="statFirstHalf">0</strong></p>
+            <p id="statSecondLabel">Зміни (16-31): <strong id="statSecondHalf">0</strong></p>
+        </div>
+        <button class="modal-btn btn-cancel" onclick="closeModal('infoModal')">Закрити</button>
     </div>
 </div>
 
@@ -210,7 +226,6 @@
         if(unsubscribe) unsubscribe();
         document.getElementById('month-label').innerText = `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
         
-        // МИТТЄВЕ ОНОВЛЕННЯ ІНТЕРФЕЙСУ
         employees = employees.map(emp => ({ ...emp, shifts: [], shiftsFirst: [], shiftsSecond: [], unavail: [] }));
         render();
 
@@ -270,7 +285,7 @@
             const worksOnActiveDay = activeColDay && (emp.shifts.includes(activeColDay) || emp.shiftsFirst.includes(activeColDay) || emp.shiftsSecond.includes(activeColDay));
             
             return `<tr class="${isRowHighlighted ? 'highlight-row' : ''}">
-                <td onclick="toggleRowHighlight(${emp.id})" class="${worksOnActiveDay ? 'highlight-name' : ''}">${emp.name}</td>
+                <td onclick="showEmployeeInfo(event, ${emp.id})" class="${worksOnActiveDay ? 'highlight-name' : ''}">${emp.name}</td>
                 ${Array.from({length:daysInMonth}, (_, i) => {
                     const day = i + 1;
                     const isWeekend = (new Date(year, month, day).getDay() % 6 === 0);
@@ -299,6 +314,39 @@
                 initialScrollDone = true;
             }, 300);
         }
+    }
+
+    window.showEmployeeInfo = function(event, id) {
+        event.stopPropagation();
+        toggleRowHighlight(id); 
+        
+        const emp = employees.find(e => e.id === id);
+        if(!emp) return;
+
+        document.getElementById('infoModalName').innerText = emp.name;
+
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+        let count1 = 0; let count2 = 0;
+        for(let d=1; d<=15; d++) {
+            if(emp.shifts.includes(d)) count1 += 1;
+            if(emp.shiftsFirst.includes(d) || emp.shiftsSecond.includes(d)) count1 += 0.5;
+        }
+        for(let d=16; d<=daysInMonth; d++) {
+            if(emp.shifts.includes(d)) count2 += 1;
+            if(emp.shiftsFirst.includes(d) || emp.shiftsSecond.includes(d)) count2 += 0.5;
+        }
+
+        document.getElementById('statFirstHalf').innerText = count1;
+        document.getElementById('statSecondLabel').innerHTML = `Зміни (16-${daysInMonth}): <strong id="statSecondHalf">${count2}</strong>`;
+
+        document.getElementById('infoModal').style.display = 'flex';
+    }
+
+    window.closeModal = function(modalId) {
+        document.getElementById(modalId).style.display = 'none';
     }
 
     window.toggleRedDotMode = function() {
